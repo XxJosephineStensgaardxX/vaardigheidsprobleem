@@ -1,26 +1,3 @@
-/*
-  Blink
-
-  Turns an LED on for one second, then off for one second, repeatedly.
-
-  Most Arduinos have an on-board LED you can control. On the UNO, MEGA and ZERO
-  it is attached to digital pin 13, on MKR1000 on pin 6. LED_BUILTIN is set to
-  the correct LED pin independent of which board is used.
-  If you want to know what pin the on-board LED is connected to on your Arduino
-  model, check the Technical Specs of your board at:
-  https://www.arduino.cc/en/Main/Products
-
-  modified 8 May 2014
-  by Scott Fitzgerald
-  modified 2 Sep 2016
-  by Arturo Guadalupi
-  modified 8 Sep 2016
-  by Colby Newman
-
-  This example code is in the public domain.
-
-  https://www.arduino.cc/en/Tutorial/BuiltInExamples/Blink
-*/
 
 // //Assigment 1
 // // Define pin numbers for each LED
@@ -393,13 +370,38 @@
 //   }
 // }
 
+//ASSIGMENT 4 (2nd version)
+//int green = 13, yellow = 12, red = 11;
+//int btn1 = 4, btn2 = 3, btn3 = 2;
+//unsigned long time = 0;
+//bool state;
+//
+//void setup() {
+//  pinMode(green, OUTPUT);
+//  pinMode(yellow, OUTPUT);
+//  pinMode(red, OUTPUT);
+//  pinMode(btn1, INPUT);
+//  pinMode(btn2, INPUT);
+//  pinMode(btn3, INPUT);
+//  Serial.begin(9600);
+//
+//}
+//
+//void loop() {
+//  if(millis() - 1500 >= time) {
+//
+//    time = millis();
+//
+//    state = !state;
+//
+//    digitalWrite(red, state);
+//    }
+//    if(!digitalRead(btn1) || !digitalRead(btn2) || !digitalRead(btn3)) {
+//      digitalWrite(green, LOW);
+//      } else {
+//        digitalWrite(green, HIGH);
+//        }
+//    delay(100);
+//}
 
-
-
-
-
-
-
-
-
-
+//########################
