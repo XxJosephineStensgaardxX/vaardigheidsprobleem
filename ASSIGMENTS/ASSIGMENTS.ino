@@ -1,5 +1,6 @@
 
-// //Assigment 1
+//Assigment 1
+
 // // Define pin numbers for each LED
 // const int redPin = 13;     
 // const int yellowPin = 12;  
@@ -32,7 +33,7 @@
 //   delay(4000);
 // }
 
-//Assigment 2
+// Assigment 2
 
 // int ledRed = 13;
 // int brightness = 0;
@@ -56,36 +57,8 @@
 //   }
 // }
 
-// //11 constants won't change. They're used here to set pin numbers:
-// const int buttonPin = 1;
-// //1 the number of the pushbutton pin
-// const int ledPin = 13;
-// //the number of the LED pin
-// // variables will change:
-// int buttonState = 0;
-// //1 variable for reading the pushbutton
+// //Assignment 3 with delay
 
-// void setup() {
-// // initialize the LED pin as an output:
-// pinMode(ledPin, OUTPUT) ;
-// // initialize the pushbutton pin as an input:
-// pinMode (buttonPin, INPUT) ;
-// }
-// void loop() {
-// // read the state of the pushbutton value:
-// buttonState = digitalRead (buttonPin) ;
-// // check if the pushbutton is pressed,
-// if (buttonState == LOW) {
-//   digitalWrite (ledPin, LOW) ;
-// // turn LED on:
-// }
-// else {
-//   digitalWrite(ledPin, HIGH); // turn LED off:
-
-// }
-// }
-
-// //Assignment 3 without milli
 // const int buttonPin = 10;     // Pin connected to the pushbutton
 // const int redPin = 13;       // Pin connected to the red LED
 // const int yellowPin = 12;    // Pin connected to the yellow LED
@@ -123,6 +96,9 @@
 //     digitalWrite(greenPin, HIGH);
 //   }
 // }
+
+
+// Assigment 3 a different way
 
 // const int buttonPin = 10;     // Pin connected to the pushbutton
 // const int redPin = 13;        // Pin connected to the red LED
@@ -173,77 +149,8 @@
 //   }
 // }
 
-//Assigment 3 but all lights on withoiut proper delay
 
-// const int buttonPin = 10;     // Pin connected to the pushbutton
-// const int redPin = 13;        // Pin connected to the red LED
-// const int yellowPin = 12;     // Pin connected to the yellow LED
-// const int greenPin = 11;      // Pin connected to the green LED
-
-// int buttonState = 0;          // Variable to store the state of the pushbutton
-// bool trafficLightActive = false;  // Variable to track if the traffic light sequence is active
-
-// unsigned long previousMillis = 0;  // Variable to store the previous time
-// const long interval = 500;   // Interval for traffic light sequence (in milliseconds)
-
-// void setup() {
-//   pinMode(buttonPin, INPUT);     // Initialize the pushbutton pin as an input
-//   pinMode(redPin, OUTPUT);       // Initialize the red LED pin as an output
-//   pinMode(yellowPin, OUTPUT);    // Initialize the yellow LED pin as an output
-//   pinMode(greenPin, OUTPUT);     // Initialize the green LED pin as an output
-  
-//   // Turn off all LEDs initially (LEDs are active LOW)
-//   digitalWrite(redPin, HIGH);
-//   digitalWrite(yellowPin, HIGH);
-//   digitalWrite(greenPin, HIGH);
-// }
-
-// void loop() {
-//   buttonState = digitalRead(buttonPin);   // Read the state of the pushbutton
-
-//   if (buttonState == LOW) {
-//     // Button is pressed
-//     if (!trafficLightActive) {
-//       // Traffic light sequence is not active, start it
-//       trafficLightActive = true;
-//       previousMillis = millis();  // Record the start time of the sequence
-//     } else {
-//       // Traffic light sequence is already active, stop it
-//       trafficLightActive = false;
-//       // Turn off all LEDs
-//       digitalWrite(redPin, HIGH);
-//       digitalWrite(yellowPin, HIGH);
-//       digitalWrite(greenPin, HIGH);
-//     }
-//     // Wait until button is released to prevent rapid toggling
-//     while (digitalRead(buttonPin) == LOW) {
-//       delay(10);
-//     }
-//   }
-
-//   if (trafficLightActive) {
-//     // Traffic light sequence is active, execute the sequence
-//     unsigned long currentMillis = millis();
-//     if (currentMillis - previousMillis >= interval) {
-//       // Toggle LED states (LEDs are active LOW)
-//       digitalWrite(redPin, !digitalRead(redPin));
-//       previousMillis = currentMillis;  // Update previous time
-      
-//       // Wait for a short duration before toggling the next LED
-//       delay(100);  // Adjust this delay as needed
-      
-//       digitalWrite(yellowPin, !digitalRead(yellowPin));
-      
-//       // Wait for a short duration before toggling the next LED
-//       delay(3000);  // Adjust this delay as needed
-      
-//       digitalWrite(greenPin, !digitalRead(greenPin));
-//     }
-//   }
-// }
-
-
-// //Assigment 3 proper
+//Assigment 3 with millis 
 
 // const int buttonPin = 10;     // Pin connected to the pushbutton
 // const int redPin = 13;        // Pin connected to the red LED
@@ -318,7 +225,9 @@
 //   }
 // }
 
-// // Assigment 4
+
+// Assigment 4
+
 // const int redPin = 13;      // Pin connected to the red LED
 // const int greenPin = 11;    // Pin connected to the green LED
 // const int buttonPin1 = 10;  // Pin connected to the first button
