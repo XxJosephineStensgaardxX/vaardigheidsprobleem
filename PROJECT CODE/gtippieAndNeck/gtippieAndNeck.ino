@@ -4,7 +4,7 @@
 // // Define the pin for the servo motor
 // const int servoPin = 3;
 
-// // Create a servo object
+// Create a servo object
 // Servo gripperServo;
 
 // void setup() {
@@ -35,11 +35,11 @@
 // }
 
 
-//grip and move
+// grip and move
 // #include <Servo.h>
 
 // // Define the pin for the servo motor
-// const int servoPin = 3;
+// // const int servoPin = 3;
 
 // // Motor A (Drive Motor)
 // const int motorAPin1 = 7; // Motor A pin 1 connected to Arduino pin 7
@@ -50,7 +50,7 @@
 // const int motorBPin2 = 4; // Motor B pin 2 connected to Arduino pin 4
 
 // // Create a servo object
-// Servo gripperServo;
+// // Servo gripperServo;
 
 // void setup() {
 //   // Set the motor control pins to outputs
@@ -138,6 +138,7 @@
 
 #include <Ultrasonic.h>
 #include <Servo.h>
+
 
 // Define pins for the ultrasonic sensor
 #define trigPin 12
