@@ -10,4 +10,12 @@ Josephine Stensgaard
 
 Fajar Butt
 
+
+## Feedback
+
+If you have any feedback, please reach out to us at Josephine.Stensgaard@student.nhlstenden.com
+
 ![Logo](LOGO-DELULU.jpeg)
+
+
+
