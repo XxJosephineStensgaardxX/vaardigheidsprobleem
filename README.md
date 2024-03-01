@@ -7,6 +7,7 @@ Delulu is designed to navigate through physical mazes autonomously, showcasing a
 ## Authors
 
 Josephine Stensgaard
+
 Fajar Butt
 
 ![Logo](LOGO-DELULU.jpeg)
