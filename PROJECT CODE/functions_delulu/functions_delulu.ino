@@ -284,11 +284,11 @@
     //   }
 
     //   void turnLeft() {
-    //   strip.setPixelColor(0, 0, 0, 255); // Left indicator - Blue
-    //   strip.setPixelColor(1, 0, 0, 0); // Right indicator - Blue
-    //   strip.setPixelColor(2, 0, 0, 0);   // Right indicator - Off
-    //   strip.setPixelColor(3, 0, 0, 255);   // Left indicator - Off
-    //   strip.show();
+      // strip.setPixelColor(0, 0, 0, 255); // Left indicator - Blue
+      // strip.setPixelColor(1, 0, 0, 0); // Right indicator - Blue
+      // strip.setPixelColor(2, 0, 0, 0);   // Right indicator - Off
+      // strip.setPixelColor(3, 0, 0, 255);   // Left indicator - Off
+      // strip.show();
 
     //   // Motor movements for turning left
     //   digitalWrite(motorAPin1, HIGH); // Motor A forward
@@ -583,84 +583,84 @@
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //COMBINATION EXPERIMENT #1
-    // #include <Ultrasonic.h>
-    // #include <Servo.h>
+    #include <Ultrasonic.h>
+    #include <Servo.h>
 
-    // const int neckServoPin = 2; // Neck swiveler servo signal pin
-    // #define trigPin 12
-    // #define echoPin 13
+    const int neckServoPin = 2; // Neck swiveler servo signal pin
+    #define trigPin 12
+    #define echoPin 13
 
-    // Ultrasonic ultrasonic(trigPin, echoPin);
-    // Servo neckSwiveler;
+    Ultrasonic ultrasonic(trigPin, echoPin);
+    Servo neckSwiveler;
 
-    // const int motorAPin1 = 7; // Motor A pin 1 connected to Arduino pin 7
-    // const int motorAPin2 = 5; // Motor A pin 2 connected to Arduino pin 5
-    // const int motorBPin1 = 6; // Motor B pin 1 connected to Arduino pin 6
-    // const int motorBPin2 = 4; // Motor B pin 2 connected to Arduino pin 4
+    const int motorAPin1 = 7; // Motor A pin 1 connected to Arduino pin 7
+    const int motorAPin2 = 5; // Motor A pin 2 connected to Arduino pin 5
+    const int motorBPin1 = 6; // Motor B pin 1 connected to Arduino pin 6
+    const int motorBPin2 = 4; // Motor B pin 2 connected to Arduino pin 4
 
-    // void setup() {
-    //   pinMode(motorAPin1, OUTPUT);
-    //   pinMode(motorAPin2, OUTPUT);
-    //   pinMode(motorBPin1, OUTPUT);
-    //   pinMode(motorBPin2, OUTPUT);
-    //   neckSwiveler.attach(neckServoPin);
-    //   Serial.begin(9600);
-    // }
+    void setup() {
+      pinMode(motorAPin1, OUTPUT);
+      pinMode(motorAPin2, OUTPUT);
+      pinMode(motorBPin1, OUTPUT);
+      pinMode(motorBPin2, OUTPUT);
+      neckSwiveler.attach(neckServoPin);
+      Serial.begin(9600);
+    }
 
-    // void moveForward() {
-    //   digitalWrite(motorAPin1, HIGH);
-    //   digitalWrite(motorAPin2, LOW);
-    //   digitalWrite(motorBPin1, HIGH);
-    //   digitalWrite(motorBPin2, LOW);
-    // }
+    void moveForward() {
+      digitalWrite(motorAPin1, HIGH);
+      digitalWrite(motorAPin2, LOW);
+      digitalWrite(motorBPin1, HIGH);
+      digitalWrite(motorBPin2, LOW);
+    }
 
-    // void stopRobot() {
-    //   digitalWrite(motorAPin1, LOW);
-    //   digitalWrite(motorAPin2, LOW);
-    //   digitalWrite(motorBPin1, LOW);
-    //   digitalWrite(motorBPin2, LOW);
-    // }
+    void stopRobot() {
+      digitalWrite(motorAPin1, LOW);
+      digitalWrite(motorAPin2, LOW);
+      digitalWrite(motorBPin1, LOW);
+      digitalWrite(motorBPin2, LOW);
+    }
 
-    // void turnLeft() {
-    //   digitalWrite(motorAPin1, LOW);
-    //   digitalWrite(motorAPin2, HIGH);
-    //   digitalWrite(motorBPin1, HIGH);
-    //   digitalWrite(motorBPin2, LOW);
-    //   delay(1000); // Adjust duration as needed
-    // }
+    void turnLeft() {
+      digitalWrite(motorAPin1, LOW);
+      digitalWrite(motorAPin2, HIGH);
+      digitalWrite(motorBPin1, HIGH);
+      digitalWrite(motorBPin2, LOW);
+      delay(1000); // Adjust duration as needed
+    }
 
-    // void turnRight() {
-    //   digitalWrite(motorAPin1, HIGH);
-    //   digitalWrite(motorAPin2, LOW);
-    //   digitalWrite(motorBPin1, LOW);
-    //   digitalWrite(motorBPin2, HIGH);
-    //   delay(1000); // Adjust duration as needed
-    // }
+    void turnRight() {
+      digitalWrite(motorAPin1, HIGH);
+      digitalWrite(motorAPin2, LOW);
+      digitalWrite(motorBPin1, LOW);
+      digitalWrite(motorBPin2, HIGH);
+      delay(1000); // Adjust duration as needed
+    }
 
-    // void loop() {
-    //   long distanceFront = ultrasonic.distanceRead();
-    //   Serial.print("Distance Front: ");
-    //   Serial.println(distanceFront);
+    void loop() {
+      long distanceFront = ultrasonic.distanceRead();
+      Serial.print("Distance Front: ");
+      Serial.println(distanceFront);
 
-    //   if (distanceFront > 10) {
-    //     moveForward(); // Drive forward if no obstacle ahead
-    //   } else {
-    //     stopRobot(); // Stop if obstacle detected
-    //     Serial.println("Obstacle detected!");
+      if (distanceFront > 10) {
+        moveForward(); // Drive forward if no obstacle ahead
+      } else {
+        stopRobot(); // Stop if obstacle detected
+        Serial.println("Obstacle detected!");
 
-    //     // Determine which direction to turn
-    //     if (random(0, 2) == 0) { // 50% chance to turn left
-    //       Serial.println("Turning left");
-    //       turnLeft();
-    //     } else { // 50% chance to turn right
-    //       Serial.println("Turning right");
-    //       turnRight();
-    //     }
+        // Determine which direction to turn
+        if (random(0, 2) == 0) { // 50% chance to turn left
+          Serial.println("Turning left");
+          turnLeft();
+        } else { // 50% chance to turn right
+          Serial.println("Turning right");
+          turnRight();
+        }
 
-    //     // Resume forward movement
-    //     moveForward();
-    //   }
-    // }
+        // Resume forward movement
+        moveForward();
+      }
+    }
 
 
 
@@ -771,7 +771,7 @@
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    //SERVO LIBRARY CODE GRIPPER WITHOUT LIBRARY 
+    // SERVO LIBRARY CODE GRIPPER WITHOUT LIBRARY 
     // #include <Servo.h>
 
     // const int gripperPin = 3; 
@@ -803,16 +803,16 @@
     //   gripperServo.write(0); // Adjust the angle as needed for closing
     // }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    //SONIC LIBARAY CODE WITHOUT INCLUDE
+    // /////////////////////////////////////////////////////////////////////////////////////////////
+    // SONIC LIBARAY CODE WITHOUT INCLUDE
    
 
 
 
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //COMBINATION EXPERIMENT #3
+    // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // COMBINATION EXPERIMENT #3
 
     //   #include <Adafruit_NeoPixel.h>
 
