@@ -119,50 +119,50 @@ void setup() {
   pinMode(SIDE_TRIG_PIN, OUTPUT);
   pinMode(SIDE_ECHO_PIN, INPUT);
 
-  attachInterrupt(digitalPinToInterrupt(MOTOR_RIGHT_ROTATION_SENSOR), rightRotationISR, RISING);
-  attachInterrupt(digitalPinToInterrupt(MOTOR_LEFT_ROTATION_SENSOR), leftRotationISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(MOTOR_RIGHT_ROTATION_SENSOR), rightRotationsUpdate, RISING);
+  attachInterrupt(digitalPinToInterrupt(MOTOR_LEFT_ROTATION_SENSOR), leftRotationsUpdate, RISING);
 }
 
-void moveForward(int rightSpeed, int leftSpeed) {
+//void moveForward(int rightSpeed, int leftSpeed) {
+//
+//  long distanceSide = getSideDistance();
+//  analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
+//  digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
+//  analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
+//  digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
+//
+//  if (distanceSide > 9.2){
+//    
+//  analogWrite(MOTOR_RIGHT_FORWARD, 205);
+//  digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
+//  analogWrite(MOTOR_LEFT_FORWARD, 247);
+//  digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
+//  }
+//
+//  else if(distanceSide < 7.2){
+//  analogWrite(MOTOR_RIGHT_FORWARD, 190);
+//  digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
+//  analogWrite(MOTOR_LEFT_FORWARD, 247);
+//  digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
+//  }
+//
+//  else{
+//  analogWrite(MOTOR_RIGHT_FORWARD, 195  ^
+//    // Stop the robot if the distance is 10 cm or less
+//    stopRobot();
+//  }
+//  
+//  delay(100);
+//}
 
-  long distanceSide = getSideDistance();
-  analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
-  digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
-  analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
-  digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
-
-  if (distanceSide > 9.2){
-    
-  analogWrite(MOTOR_RIGHT_FORWARD, 205);
-  digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
-  analogWrite(MOTOR_LEFT_FORWARD, 247);
-  digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
-  }
-
-  else if(distanceSide < 7.2){
-  analogWrite(MOTOR_RIGHT_FORWARD, 190);
-  digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
-  analogWrite(MOTOR_LEFT_FORWARD, 247);
-  digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
-  }
-
-  else{
-  analogWrite(MOTOR_RIGHT_FORWARD, 195  ^
-    // Stop the robot if the distance is 10 cm or less
-    stopRobot();
-  }
-  
-  delay(100);
-}
-
-void rightRotation() {
+void rightRotationsUpdate() {
   noInterrupts();
   rightPulseCount++;
   interrupts();
   return;
 }
 
-void leftRotationISR() {
+void leftRotationsUpdate() {
   noInterrupts();
   leftPulseCount++;
   interrupts();
@@ -235,57 +235,58 @@ void leftRotationISR() {
 //  pinMode(ECHO_PIN, INPUT);
 //}
 //
-//void moveForward(int rightSpeed, int leftSpeed) {
-//  analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
-//  digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
-//  analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
-//  digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
-//}
-//
-//long getUltrasonicDistance() {
-//  long duration, distance;
-//  digitalWrite(TRIG_PIN, LOW);
-//  delayMicroseconds(2);
-//
-//  digitalWrite(TRIG_PIN, HIGH);
-//  delayMicroseconds(10);
-//  digitalWrite(TRIG_PIN, LOW);
-//  
-//  duration = pulseIn(ECHO_PIN, HIGH);
-//  distance = duration * 0.034 / 2;
-//  
-//  return distance;
-//}
-//
-//void stopRobot() {
-//  digitalWrite(MOTOR_RIGHT_FORWARD, LOW);
-//  digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
-//  digitalWrite(MOTOR_LEFT_FORWARD, LOW);
-//  digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
-//}
-//
-//void loop() {
-//  long distance = getUltrasonicDistance();
-//
-//  if (distance > 20) {
-//    // Calculate the number of rotations based on pulse counts (20 pulses per rotation)
-//    int rightRotations = rightPulseCount / 20;
-//    int leftRotations = leftPulseCount / 20;
-//
-//    // Calculate the maximum number of rotations needed to reach the target distance
-//    int targetRotations = distance / 10; // Assuming 10 cm per rotation
-//
-//    // Determine the speed based on the difference between actual and target rotations
-//    int speedDifference = targetRotations - max(rightRotations, leftRotations);
-//    int rightSpeed = 195 + speedDifference;
-//    int leftSpeed = 247 + speedDifference;
-//
-//    // Move forward at the calculated speeds
-//    moveForward(rightSpeed, leftSpeed);
-//  } else {
-//    // Stop the robot if the distance is 20 cm or less
-//    stopRobot();
-//  }
-//  
-//  delay(100);
-//}
+
+void moveForward(int rightSpeed, int leftSpeed) {
+  analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
+  digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
+  analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
+  digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
+}
+
+long getUltrasonicDistance() {
+  long duration, distance;
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  
+  duration = pulseIn(ECHO_PIN, HIGH);
+  distance = duration * 0.034 / 2;
+  
+  return distance;
+}
+
+void stopRobot() {
+  digitalWrite(MOTOR_RIGHT_FORWARD, LOW);
+  digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
+  digitalWrite(MOTOR_LEFT_FORWARD, LOW);
+  digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
+}
+
+void loop() {
+  long distance = getUltrasonicDistance();
+
+  if (distance > 20) {
+    // Calculate the number of rotations based on pulse counts (20 pulses per rotation)
+    int rightRotations = rightPulseCount / 20;
+    int leftRotations = leftPulseCount / 20;
+
+    // Calculate the maximum number of rotations needed to reach the target distance
+    int targetRotations = distance / 10; // Assuming 10 cm per rotation
+
+    // Determine the speed based on the difference between actual and target rotations
+    int speedDifference = targetRotations - max(rightRotations, leftRotations);
+    int rightSpeed = 195 + speedDifference;
+    int leftSpeed = 247 + speedDifference;
+
+    // Move forward at the calculated speeds
+    moveForward(rightSpeed, leftSpeed);
+  } else {
+    // Stop the robot if the distance is 20 cm or less
+    stopRobot();
+  }
+  
+  delay(100);
+}

@@ -165,7 +165,7 @@
 #include <Ultrasonic.h>
 #include <Servo.h>
 
-const int neckServoPin = 2;
+const int neckServoPin = 8;
 #define trigPin 12
 #define echoPin 13
 
@@ -174,8 +174,8 @@ Servo neckSwiveler;
 
 const int motorRightPWM = 102;
 const int motorLeftPWM = 25;
-const int motorRightSpeedPin = 8;
-const int motorLeftSpeedPin = 9;
+const int motorRightSpeedPin = 3;
+const int motorLeftSpeedPin = 2;
 
 const int motorAPin1 = 7;
 const int motorAPin2 = 5;
