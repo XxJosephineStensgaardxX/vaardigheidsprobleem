@@ -50,14 +50,22 @@ void centerRobot() {
 
     if (sideDistance > 9.2) { // Far from the side obstacle
         analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
-        analogWrite(MOTOR_LEFT_FORWARD, 250); // Adjust motor speeds for centering
+        analogWrite(MOTOR_LEFT_FORWARD, 250);
+        analogWrite(MOTOR_LEFT_BACKWARD, LOW);
+        analogWrite(MOTOR_RIGHT_BACKWARD, LOW);
+        
     } else if (sideDistance < 7.2) { // Close to the side obstacle
         analogWrite(MOTOR_RIGHT_FORWARD, 240);
         analogWrite(MOTOR_LEFT_FORWARD, leftSpeed); // Adjust motor speeds for centering
+        analogWrite(MOTOR_LEFT_BACKWARD, LOW);
+        analogWrite(MOTOR_RIGHT_BACKWARD, LOW);
+        
     } else {
         // Robot is centered, continue moving forward with default speeds
         analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
         analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
+        analogWrite(MOTOR_LEFT_BACKWARD, LOW);
+        analogWrite(MOTOR_RIGHT_BACKWARD, LOW);
     }
 }
 
@@ -88,35 +96,6 @@ void moveForwardInRotations(int rotations) {
     stopRobot();
     movingForward = false;
 }
-
-//void determineTurn() {
-//    long distanceForward = getDistanceForward();
-//    long sideDistance = getDistanceSide();
-//
-//    if (distanceForward < 20) { // If obstacle detected in front
-//        // Perform a swivel to check for space on each side
-//        swivelNeck(90);
-//        wait(1000);
-//        long rightDistance = getDistanceForward();
-//        swivelNeck(-90);
-//        wait(1000);
-//        long leftDistance = getDistanceForward();
-//        swivelNeck(0);
-//
-//        if (leftDistance > rightDistance) {
-//            // Turn right
-//            turnLeft(6); 
-//        } else if (rightDistance > leftDistance){
-//            // Turn left
-//            turnRight(6); 
-//        } else if(leftDistance = rightDistance) {
-//          turnRight(6);
-//          
-//        } else {
-//          turnRight(12);
-//        }
-//    } 
-
 
 void determineTurn() {
     long distanceForward = getDistanceForward();
