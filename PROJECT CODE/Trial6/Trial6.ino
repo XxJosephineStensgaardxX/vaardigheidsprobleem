@@ -14,7 +14,7 @@
 #define MOTOR_LEFT_BACKWARD 11 //used to be 4
 
 const int rightSpeed = 230;
-const int leftSpeed = 220;
+const int leftSpeed = 225;
 
 volatile int rightPulseCount = 0;
 volatile int leftPulseCount = 0;
@@ -41,8 +41,8 @@ void setup() {
 }
 
 void loop() {
-  
-    determineTurn();
+
+    moveForwardInRotations(targetRotations);
 }
 
 void centerRobot() {
@@ -50,9 +50,9 @@ void centerRobot() {
 
     if (sideDistance > 9.2) { // Far from the side obstacle
         analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
-        analogWrite(MOTOR_LEFT_FORWARD, leftSpeed); // Adjust motor speeds for centering
+        analogWrite(MOTOR_LEFT_FORWARD, 250); // Adjust motor speeds for centering
     } else if (sideDistance < 7.2) { // Close to the side obstacle
-        analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
+        analogWrite(MOTOR_RIGHT_FORWARD, 240);
         analogWrite(MOTOR_LEFT_FORWARD, leftSpeed); // Adjust motor speeds for centering
     } else {
         // Robot is centered, continue moving forward with default speeds
@@ -67,6 +67,8 @@ void moveForwardInRotations(int rotations) {
         movingForward = true;
     }
 
+    centerRobot(); // Call the centerRobot function to center the robot while moving
+
     while (rightPulseCount < rotations && leftPulseCount < rotations) {
         // Continuously sense distance while moving forward
         long distance = getDistanceForward();
@@ -75,8 +77,6 @@ void moveForwardInRotations(int rotations) {
             determineTurn(); // Call determineTurn when an obstacle is detected
             return; // Exit the function to stop moving forward
         }
-        
-        //centerRobot(); // Call the centerRobot function to center the robot while moving
 
         // Continue moving forward with default speeds
         analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
@@ -89,46 +89,86 @@ void moveForwardInRotations(int rotations) {
     movingForward = false;
 }
 
+//void determineTurn() {
+//    long distanceForward = getDistanceForward();
+//    long sideDistance = getDistanceSide();
+//
+//    if (distanceForward < 20) { // If obstacle detected in front
+//        // Perform a swivel to check for space on each side
+//        swivelNeck(90);
+//        wait(1000);
+//        long rightDistance = getDistanceForward();
+//        swivelNeck(-90);
+//        wait(1000);
+//        long leftDistance = getDistanceForward();
+//        swivelNeck(0);
+//
+//        if (leftDistance > rightDistance) {
+//            // Turn right
+//            turnLeft(6); 
+//        } else if (rightDistance > leftDistance){
+//            // Turn left
+//            turnRight(6); 
+//        } else if(leftDistance = rightDistance) {
+//          turnRight(6);
+//          
+//        } else {
+//          turnRight(12);
+//        }
+//    } 
+
+
 void determineTurn() {
     long distanceForward = getDistanceForward();
     long sideDistance = getDistanceSide();
 
-    if (distanceForward < 15) { // If obstacle detected in front
+    if (distanceForward < 20) { // If obstacle detected in front
         // Perform a swivel to check for space on each side
         swivelNeck(90);
-        delay(1000);
+        wait(1000);
         long rightDistance = getDistanceForward();
+        Serial.print("Right distance: ");
+        Serial.println(rightDistance);
         swivelNeck(-90);
-        delay(1000);
+        wait(1000);
         long leftDistance = getDistanceForward();
+        Serial.print("Left distance: ");
+        Serial.println(leftDistance);
         swivelNeck(0);
 
-        if (rightDistance > leftDistance) {
+        if (leftDistance > rightDistance) {
             // Turn right
-            TurnRight(2); 
-        } else {
+            turnRight(4); 
+        } else if (rightDistance > leftDistance){
             // Turn left
-            TurnLeft(2); 
+            turnLeft(4); 
+        } else if(leftDistance == rightDistance) {
+            turnRight(4); // Or you can turn left or right as per your preference
+        } else {
+            turnRight(8); // Arbitrary turn if distance comparison fails
         }
-   
-    } 
-
-//side sensor
-//else if (sideDistance > 20) { 
-//      
-//        if (getDistanceSide() > getDistanceSide()) {
-//            // Turn right
-//            TurnRight(6); 
-//        } else {
-//            // Turn left
-//            TurnLeft(6); 
-//        }
-//    } 
-    else {
-            // Continue moving forward
-             moveForwardInRotations(targetRotations);
-        }
+    }  
 }
+
+    
+
+    //side sensor
+    //else if (sideDistance > 20) { 
+    //      
+    //        if (getDistanceSide() > getDistanceSide()) {
+    //            // Turn right
+    //            TurnRight(6); 
+    //        } else {
+    //            // Turn left
+    //            TurnLeft(6); 
+    //        }
+    //    } 
+    
+//    else {
+//            // Continue moving forward
+//             moveForwardInRotations(targetRotations);
+//        }
+//}
 
 void stopRobot() {
   digitalWrite(MOTOR_RIGHT_FORWARD, LOW);
@@ -137,46 +177,52 @@ void stopRobot() {
   digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
 }
 
-void TurnLeft(int rotations) {
+void turnLeft(int rotations) {
     stopRobot();
-    delay(150);
+    wait(150);
 
     resetRotations();
     while(rightPulseCount < rotations) {
-        analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
-        analogWrite(MOTOR_RIGHT_FORWARD, LOW);
-        analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
-        analogWrite(MOTOR_LEFT_BACKWARD, LOW);
+        analogWrite(MOTOR_LEFT_FORWARD, LOW);
+        analogWrite(MOTOR_RIGHT_FORWARD, leftSpeed);
+        analogWrite(MOTOR_RIGHT_BACKWARD, LOW);
+        analogWrite(MOTOR_LEFT_BACKWARD, rightSpeed);
     }
 
-    delay(150);
+    wait(150);
 
     // Continue moving forward if obstacle is cleared
     long distance = getDistanceForward();
     if (distance > 15) {
-        delay(100);
+        wait(100);
         moveForwardInRotations(5);
     }
+    
+    wait(2000);
 }
 
-void TurnRight(int rotations) {
+void turnRight(int rotations) {
     stopRobot();
-    delay(150);
-
+    wait(150);
+    
     resetRotations();
     while (leftPulseCount < rotations) {
         analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
-        analogWrite(MOTOR_RIGHT_FORWARD, LOW);
-        analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
         analogWrite(MOTOR_LEFT_BACKWARD, LOW);
+        analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
+        analogWrite(MOTOR_RIGHT_FORWARD, LOW);
     }
 
+   wait(150);
+   
     // Continue moving forward if obstacle is cleared
     long distance = getDistanceForward();
     if (distance > 15) {
-        delay(100);
+        wait(100);
         moveForwardInRotations(5);
     }
+
+    wait(2000);
 }
 
 void resetRotations() {
@@ -219,6 +265,15 @@ void swivelNeck(int angle) {
         digitalWrite(SERVO_NECK_PIN, HIGH);             // Set the pin high
         delayMicroseconds(pulseWidth);                   // Delay for the calculated pulse width
         digitalWrite(SERVO_NECK_PIN, LOW);              // Set the pin low
-        delay(20);                                       // Add a small delay to ensure the servo has enough time to respond
+        wait(20);                                       // Add a small delay to ensure the servo has enough time to respond
+    }
+}
+
+void wait(int timeToWait) {
+    unsigned long startTime = millis(); // Get the current time
+
+    // Loop until the desired time has passed
+    while (millis() - startTime < timeToWait) {
+        // Do nothing, just keep looping
     }
 }

@@ -1,13 +1,13 @@
 #define MOTOR_RIGHT_ROTATION_SENSOR 3
 #define MOTOR_LEFT_ROTATION_SENSOR 2
 
-#define MOTOR_RIGHT_FORWARD 7  
+#define MOTOR_RIGHT_FORWARD 10  
 #define MOTOR_RIGHT_BACKWARD 5
 #define MOTOR_LEFT_FORWARD 6
-#define MOTOR_LEFT_BACKWARD 4
+#define MOTOR_LEFT_BACKWARD 11
 
-const int rightSpeed = 195;
-const int leftSpeed = 247;
+const int rightSpeed = 230;
+const int leftSpeed = 220;
 
 volatile int rightPulseCount = 0;
 volatile int leftPulseCount = 0;
@@ -27,21 +27,24 @@ void setup() {
 }
 
 void loop() {
-    // Test the TurnRight function with 2 rotations
-    TurnRight(6);
+    // Test the TurnRight function with 6 rotations
+    turnLeft(15);
+    delay(2000);
 }
 
-void TurnRight(int rotations) {
+void turnLeft(int rotations) {
+    stopRobot();
     delay(150);
-    
+
     resetRotations();
-    while (leftPulseCount < rotations) {
-        analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
-        analogWrite(MOTOR_LEFT_BACKWARD, LOW);
-        analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
-        analogWrite(MOTOR_RIGHT_FORWARD, LOW);
+    while(rightPulseCount < rotations) {
+        analogWrite(MOTOR_LEFT_FORWARD, LOW);
+        analogWrite(MOTOR_RIGHT_FORWARD, leftSpeed);
+        analogWrite(MOTOR_RIGHT_BACKWARD, LOW);
+        analogWrite(MOTOR_LEFT_BACKWARD, rightSpeed);
     }
 
+    delay(150);
     stopRobot(); // Stop the robot after completing the desired rotations
 }
 
