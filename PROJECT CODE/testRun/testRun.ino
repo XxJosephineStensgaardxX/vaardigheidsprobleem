@@ -21,30 +21,31 @@ void setup() {
     pinMode(MOTOR_LEFT_ROTATION_SENSOR, INPUT);
 
     Serial.begin(9600);
+
+    attachInterrupt(digitalPinToInterrupt(MOTOR_RIGHT_ROTATION_SENSOR), rightRotationsUpdate, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(MOTOR_LEFT_ROTATION_SENSOR), leftRotationsUpdate, CHANGE);
 }
 
 void loop() {
-    // Test the TurnRight function with 6 rotations
+    // Test the TurnRight function with 2 rotations
     TurnRight(6);
 }
 
 void TurnRight(int rotations) {
-
     delay(150);
-
+    
     resetRotations();
     while (leftPulseCount < rotations) {
         analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
+        analogWrite(MOTOR_LEFT_BACKWARD, LOW);
         analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
+        analogWrite(MOTOR_RIGHT_FORWARD, LOW);
     }
 
-    delay(150);
-
-    // Continue moving forward if obstacle is cleared
-    // Replace this section with your obstacle checking logic
-  
-    // moveForwardInRotations(5); // This line is commented out because moveForwardInRotations function is not defined
+    stopRobot(); // Stop the robot after completing the desired rotations
 }
+
+
 
 void stopRobot() {
     digitalWrite(MOTOR_RIGHT_FORWARD, LOW);
