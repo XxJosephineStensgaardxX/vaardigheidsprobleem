@@ -45,27 +45,28 @@ void loop() {
     moveForwardInRotations(targetRotations);
 }
 
+//include this in the moveforward
 void centerRobot() {
     long sideDistance = getDistanceSide();
 
     if (sideDistance > 9.2) { // Far from the side obstacle
         analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
         analogWrite(MOTOR_LEFT_FORWARD, 250);
-        analogWrite(MOTOR_LEFT_BACKWARD, LOW);
-        analogWrite(MOTOR_RIGHT_BACKWARD, LOW);
+        analogWrite(MOTOR_LEFT_BACKWARD, 0);
+        analogWrite(MOTOR_RIGHT_BACKWARD, 0);
         
     } else if (sideDistance < 7.2) { // Close to the side obstacle
         analogWrite(MOTOR_RIGHT_FORWARD, 240);
         analogWrite(MOTOR_LEFT_FORWARD, leftSpeed); // Adjust motor speeds for centering
-        analogWrite(MOTOR_LEFT_BACKWARD, LOW);
-        analogWrite(MOTOR_RIGHT_BACKWARD, LOW);
+        analogWrite(MOTOR_LEFT_BACKWARD, 0);
+        analogWrite(MOTOR_RIGHT_BACKWARD, 0);
         
     } else {
         // Robot is centered, continue moving forward with default speeds
         analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
         analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
-        analogWrite(MOTOR_LEFT_BACKWARD, LOW);
-        analogWrite(MOTOR_RIGHT_BACKWARD, LOW);
+        analogWrite(MOTOR_LEFT_BACKWARD, 0);
+        analogWrite(MOTOR_RIGHT_BACKWARD, 0);
     }
 }
 
@@ -124,13 +125,17 @@ void determineTurn() {
         } else if(leftDistance == rightDistance) {
             turnRight(4); // Or you can turn left or right as per your preference
         } else {
-            turnRight(8); // Arbitrary turn if distance comparison fails
-        }
+            turnRight(5); // Arbitrary turn if distance comparison fails
+        } // wont go in else so it jus turns around madly
+        
+    } else if (sideDistance > 20) { // If side distance is free
+        // Determine which direction to turn based on your preference
+        // For example, turnRight(4) or turnLeft(4)
+        turnRight(4); // Turning right as an example
     }  
 }
-
+    //else if it senses sideDistance to be free it should jus turn right
     
-
     //side sensor
     //else if (sideDistance > 20) { 
     //      
@@ -218,6 +223,7 @@ float pulse(int TRIG_PIN, int ECHO_PIN) {
   return duration_us * .017;
 }
 
+// include this in determine turn 
 float getDistanceForward() {
   return round(pulse(FRONT_TRIG_PIN, FRONT_ECHO_PIN) * 100.0) / 100.0;
 }
