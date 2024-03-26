@@ -79,8 +79,6 @@ void moveForwardInRotations(int rotations) {
         movingForward = true;
     }
 
-//    centerRobot();
-
     while (rightPulseCount < rotations && leftPulseCount < rotations) {
         // Continuously sense distance while moving forward
         long distance = getDistanceForward();
@@ -91,12 +89,7 @@ void moveForwardInRotations(int rotations) {
         }
 
         centerRobot();
-
-//         Continue moving forward with default speeds
-//        analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
-//        analogWrite(MOTOR_RIGHT_BACKWARD, 0);
-//        analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
-//        analogWrite(MOTOR_LEFT_BACKWARD, 0);
+        
     }
 
     stopRobot();
@@ -121,47 +114,25 @@ void determineTurn() {
         Serial.println(leftDistance);
         swivelNeck(0);
 
-       if (leftDistance > rightDistance) {
+        if (leftDistance > rightDistance) {
             Serial.println("Turning right");
             turnRight(4); 
         } else if (rightDistance > leftDistance) {
             Serial.println("Turning left ");
-            turnLeft(4); 
-        } else if (leftDistance > 15 && rightDistance > 15) { // Both sides are free
-            Serial.println("Both sides are free, continuing straight");
+            turnLeft(4);  
+        } else if(leftDistance > 15 && rightDistance > 15) { //both sides are free
+            Serial.println("both sides free");
             turnRight(0);
-        } else if (leftDistance < 15 && rightDistance < 15) { // Both sides are not free
-            Serial.println("Both sides are blocked, turning right to avoid collision");
-            turnRight(2); // Goes batshit crazy for no reason
-        } // Won't go in else so it just turns around madly
-        
-    } 
-//    else if (sideDistance > 20) {// If side distance is free^
-//     Serial.print("Right distance: ");
-//        // Determine which direction to turn based on your preference
-//        // For example, turnRight(4) or turnLeft(4)
-//        turnRight(4); // Turning right as an example
-//    }  
+        } else if(leftDistance < 15 && rightDistance < 15) {//both sides are not free
+            Serial.println("no sides free");
+            turnRight(2); //goes batshit crzay for no reason
+        }
+    } else if (sideDistance > 20) { // If side distance is free
+        Serial.println("side is freeeeeee");
+        turnRight(4); // Turning right as an example
+    }
 }
-    //else if it senses sideDistance to be free it should jus turn right
-    
-    //side sensor
-    //else if (sideDistance > 20) { 
-    //      
-    //        if (getDistanceSide() > getDistanceSide()) {
-    //            // Turn right
-    //            TurnRight(6); 
-    //        } else {
-    //            // Turn left
-    //            TurnLeft(6); 
-    //        }
-    //    } 
-    
-//    else {
-//            // Continue moving forward
-//             moveForwardInRotations(targetRotations);
-//        }
-//}
+      
 
 void stopRobot() {
   digitalWrite(MOTOR_RIGHT_FORWARD, LOW);
@@ -195,6 +166,7 @@ void turnLeft(int rotations) {
 }
 
 void turnRight(int rotations) {
+    Serial.print("Right turn how many times");
     stopRobot();
     wait(150);
     
@@ -204,6 +176,7 @@ void turnRight(int rotations) {
         analogWrite(MOTOR_LEFT_BACKWARD, LOW);
         analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
         analogWrite(MOTOR_RIGHT_FORWARD, LOW);
+        Serial.println("Rotations in turnRight: " + String(leftPulseCount));
     }
 
    wait(150);
