@@ -121,15 +121,19 @@ void determineTurn() {
         Serial.println(leftDistance);
         swivelNeck(0);
 
-        if (leftDistance > rightDistance) {
+       if (leftDistance > rightDistance) {
+            Serial.println("Turning right");
             turnRight(4); 
-        } else if (rightDistance > leftDistance){
+        } else if (rightDistance > leftDistance) {
+            Serial.println("Turning left ");
             turnLeft(4); 
-        } else if(leftDistance > 15 && rightDistance > 15) { //both sides are free
+        } else if (leftDistance > 15 && rightDistance > 15) { // Both sides are free
+            Serial.println("Both sides are free, continuing straight");
             turnRight(0);
-        } else if(leftDistance < 15 && rightDistance < 15) { //both sides are not free
-            turnRight(2); //goes batshit crzay for no reason
-        } // wont go in else so it jus turns around madly
+        } else if (leftDistance < 15 && rightDistance < 15) { // Both sides are not free
+            Serial.println("Both sides are blocked, turning right to avoid collision");
+            turnRight(2); // Goes batshit crazy for no reason
+        } // Won't go in else so it just turns around madly
         
     } 
 //    else if (sideDistance > 20) {// If side distance is free^
