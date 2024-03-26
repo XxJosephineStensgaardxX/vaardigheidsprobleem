@@ -8,10 +8,12 @@
 #define MOTOR_RIGHT_ROTATION_SENSOR 3
 #define MOTOR_LEFT_ROTATION_SENSOR 2
 
-#define MOTOR_RIGHT_FORWARD 10 // used to be 7
+#define MOTOR_RIGHT_FORWARD 10 
 #define MOTOR_RIGHT_BACKWARD 5
 #define MOTOR_LEFT_FORWARD 6
-#define MOTOR_LEFT_BACKWARD 11 //used to be 4
+#define MOTOR_LEFT_BACKWARD 11 
+
+#include <Adafruit_NeoPixel.h> 
 
 const int rightSpeed = 230;
 const int leftSpeed = 225;
@@ -45,24 +47,22 @@ void loop() {
     moveForwardInRotations(targetRotations);
 }
 
-//include this in the moveforward
 void centerRobot() {
     long sideDistance = getDistanceSide();
 
     if (sideDistance > 9.2) { // Far from the side obstacle
         analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
-        analogWrite(MOTOR_LEFT_FORWARD, 250);
+        analogWrite(MOTOR_LEFT_FORWARD, 235); 
         analogWrite(MOTOR_LEFT_BACKWARD, 0);
         analogWrite(MOTOR_RIGHT_BACKWARD, 0);
         
     } else if (sideDistance < 7.2) { // Close to the side obstacle
-        analogWrite(MOTOR_RIGHT_FORWARD, 240);
-        analogWrite(MOTOR_LEFT_FORWARD, leftSpeed); // Adjust motor speeds for centering
-        analogWrite(MOTOR_LEFT_BACKWARD, 0);
+        analogWrite(MOTOR_RIGHT_FORWARD, 255);
+        analogWrite(MOTOR_LEFT_FORWARD, leftSpeed); 
+        analogWrite(MOTOR_LEFT_BACKWARD, 195); 
         analogWrite(MOTOR_RIGHT_BACKWARD, 0);
         
     } else {
-        // Robot is centered, continue moving forward with default speeds
         analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
         analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
         analogWrite(MOTOR_LEFT_BACKWARD, 0);
@@ -76,7 +76,7 @@ void moveForwardInRotations(int rotations) {
         movingForward = true;
     }
 
-    centerRobot(); // Call the centerRobot function to center the robot while moving
+    centerRobot();
 
     while (rightPulseCount < rotations && leftPulseCount < rotations) {
         // Continuously sense distance while moving forward
@@ -117,13 +117,11 @@ void determineTurn() {
         swivelNeck(0);
 
         if (leftDistance > rightDistance) {
-            // Turn right
             turnRight(4); 
         } else if (rightDistance > leftDistance){
-            // Turn left
             turnLeft(4); 
         } else if(leftDistance == rightDistance) {
-            turnRight(4); // Or you can turn left or right as per your preference
+            turnRight(4);
         } else {
             turnRight(5); // Arbitrary turn if distance comparison fails
         } // wont go in else so it jus turns around madly
@@ -247,10 +245,10 @@ void leftRotationsUpdate() {
 void swivelNeck(int angle) {
     for (int i = 0; i < 10; i++) {
         int pulseWidth = map(angle, -90, 90, 600, 2400); // Map the angle to pulse width
-        digitalWrite(SERVO_NECK_PIN, HIGH);             // Set the pin high
+        digitalWrite(SERVO_NECK_PIN, HIGH);              // Set the pin high
         delayMicroseconds(pulseWidth);                   // Delay for the calculated pulse width
-        digitalWrite(SERVO_NECK_PIN, LOW);              // Set the pin low
-        wait(20);                                       // Add a small delay to ensure the servo has enough time to respond
+        digitalWrite(SERVO_NECK_PIN, LOW);               // Set the pin low
+        wait(20);                                        // Add a small delay to ensure the servo has enough time to respond
     }
 }
 
