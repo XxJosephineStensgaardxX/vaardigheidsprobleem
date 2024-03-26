@@ -53,15 +53,15 @@ void centerRobot() {
     if (sideDistance > 9.2) { // Far from the side obstacle
         Serial.println("sideDistance > 9.2");
         analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
-        analogWrite(MOTOR_LEFT_FORWARD, 0); 
-        analogWrite(MOTOR_LEFT_BACKWARD, 235);
+        analogWrite(MOTOR_LEFT_FORWARD, 240); 
+        analogWrite(MOTOR_LEFT_BACKWARD, 0);
         analogWrite(MOTOR_RIGHT_BACKWARD, 0);
         
     } else if (sideDistance < 7.4) { // Close to the side obstacle
         Serial.println("sideDistance < 7.4");
         analogWrite(MOTOR_RIGHT_FORWARD, 255);
-        analogWrite(MOTOR_LEFT_FORWARD, leftSpeed); 
-        analogWrite(MOTOR_LEFT_BACKWARD, 215); 
+        analogWrite(MOTOR_LEFT_FORWARD, 215); 
+        analogWrite(MOTOR_LEFT_BACKWARD, 0); 
         analogWrite(MOTOR_RIGHT_BACKWARD, 0);
         
     } else {
@@ -92,7 +92,7 @@ void moveForwardInRotations(int rotations) {
 
         centerRobot();
 
-        // Continue moving forward with default speeds
+//         Continue moving forward with default speeds
 //        analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
 //        analogWrite(MOTOR_RIGHT_BACKWARD, 0);
 //        analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
@@ -125,18 +125,19 @@ void determineTurn() {
             turnRight(4); 
         } else if (rightDistance > leftDistance){
             turnLeft(4); 
-        } else if(leftDistance == rightDistance) {
-            turnRight(4);
-        } else {
-            turnRight(5); // Arbitrary turn if distance comparison fails
+        } else if(leftDistance > 15 && rightDistance > 15) { //both sides are free
+            turnRight(0);
+        } else if(leftDistance < 15 && rightDistance < 15) { //both sides are not free
+            turnRight(2); //goes batshit crzay for no reason
         } // wont go in else so it jus turns around madly
         
-    } else if (sideDistance > 20) {// If side distance is free
-     Serial.print("Right distance: ");
-        // Determine which direction to turn based on your preference
-        // For example, turnRight(4) or turnLeft(4)
-        turnRight(4); // Turning right as an example
-    }  
+    } 
+//    else if (sideDistance > 20) {// If side distance is free^
+//     Serial.print("Right distance: ");
+//        // Determine which direction to turn based on your preference
+//        // For example, turnRight(4) or turnLeft(4)
+//        turnRight(4); // Turning right as an example
+//    }  
 }
     //else if it senses sideDistance to be free it should jus turn right
     
