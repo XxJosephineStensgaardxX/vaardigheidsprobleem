@@ -43,16 +43,19 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(MOTOR_LEFT_ROTATION_SENSOR), leftRotationsUpdate, CHANGE);
 }
 
-// change rotations, try turn around and maybe if it doesnt work go back to backward
 void loop() {
 
     moveForwardInRotations(targetRotations);
+
+    if(millis() % 5000 == 0){
+      check();
+    }
 }
 
 void centerRobot() {
     long sideDistance = getDistanceSide();
 
-    if (sideDistance > 9.2) { // Far from the side obstacle
+    if (sideDistance > 9.2) {       // Far from the side obstacle
         Serial.println("sideDistance > 9.2");
         analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
         analogWrite(MOTOR_LEFT_FORWARD, 240); 
@@ -109,7 +112,7 @@ void check() {
 
   swivelNeck(90);
   swivelNeck(-90);
-//  determineTurn();
+  //  determineTurn();
   
 }
 
@@ -124,7 +127,6 @@ void moveBackwardInRotations(int rotations) {
         Serial.println(rightPulseCount);
         Serial.println(leftPulseCount);
 
-        // Adjust motor outputs for moving backward
         analogWrite(MOTOR_RIGHT_FORWARD, LOW);
         analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
         analogWrite(MOTOR_LEFT_FORWARD, LOW);
