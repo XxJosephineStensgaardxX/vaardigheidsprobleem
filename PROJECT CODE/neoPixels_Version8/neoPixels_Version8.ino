@@ -16,7 +16,7 @@
 #include <Adafruit_NeoPixel.h>
 #define PIN 7         // Digital pin Neopixels (Pin: IO)
 #define NUM_PIXELS 4  // Number of Neopixels
-Adafruit_NeoPixel pixels(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels(NUM_PIXELS, PIN, NEO_RGB );
 
 const int rightSpeed = 230;
 const int leftSpeed = 225;
@@ -132,9 +132,8 @@ void goBackwardBasic(int ticks) {
     analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
     analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
 
+    pixels.clear();
     pixels.setPixelColor(1, pixels.Color(0, 255, 0)); //
-    pixels.setPixelColor(2, pixels.Color(0, 0, 0)); // 
-    pixels.setPixelColor(3, pixels.Color(0, 0, 0)); // 
     pixels.setPixelColor(0, pixels.Color(0, 255, 0)); //
     pixels.show();
   }
@@ -151,10 +150,9 @@ void centerRobot() {
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
 
-    pixels.setPixelColor(1, pixels.Color(0, 0, 0)); // 
+    pixels.clear();
     pixels.setPixelColor(2, pixels.Color(155, 255, 0)); // 
     pixels.setPixelColor(3, pixels.Color(155, 255, 0)); //
-    pixels.setPixelColor(0, pixels.Color(0, 0, 0)); //
     pixels.show();
 
   } else if (sideDistance < 7.4) { // Close to the side obstacle
@@ -163,10 +161,9 @@ void centerRobot() {
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
 
-    pixels.setPixelColor(1, pixels.Color(0, 0, 0)); // 
+    pixels.clear();
     pixels.setPixelColor(2, pixels.Color(155, 255, 0)); // 
     pixels.setPixelColor(3, pixels.Color(155, 255, 0)); //
-    pixels.setPixelColor(0, pixels.Color(0, 0, 0)); //
     pixels.show();
 
   } else {
@@ -175,10 +172,9 @@ void centerRobot() {
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
 
-    pixels.setPixelColor(1, pixels.Color(0, 0, 0)); // 
+    pixels.clear();
     pixels.setPixelColor(2, pixels.Color(155, 255, 0)); // 
     pixels.setPixelColor(3, pixels.Color(155, 255, 0)); //
-    pixels.setPixelColor(0, pixels.Color(0, 0, 0)); //
     pixels.show();
   }
 }
