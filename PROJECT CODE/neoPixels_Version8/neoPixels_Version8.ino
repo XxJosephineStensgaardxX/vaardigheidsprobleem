@@ -42,6 +42,10 @@ bool startSequence = false;
 bool ending = false;
 
 void setup() {
+
+  pixels.begin();  // Initialize NeoPixels
+  pixels.show();   // Initialize all pixels to 'off'
+  pixels.setBrightness(50);  // Set NeoPixel brightness
   
   pinMode(MOTOR_RIGHT_FORWARD, OUTPUT);
   pinMode(MOTOR_RIGHT_BACKWARD, OUTPUT);
