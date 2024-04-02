@@ -46,10 +46,6 @@ void setup() {
 void loop() {
 
     moveForwardInRotations(targetRotations);
-
-    if(millis() % 5000 == 0){
-      check();
-    }
 }
 
 void centerRobot() {
@@ -101,20 +97,20 @@ void moveForwardInRotations(int rotations) {
     movingForward = false;
 }
 
-void check() {
-  long distanceForward = getDistanceForward();
-  swivelNeck(90);
-  swivelNeck(-90);
-
-  if (distanceForward < 1 || distanceForward < 5) {
-    moveBackwardInRotations(40);
-  }
-
-  swivelNeck(90);
-  swivelNeck(-90);
-  //  determineTurn();
-  
-}
+//void check() {
+//  long distanceForward = getDistanceForward();
+//  swivelNeck(90);
+//  swivelNeck(-90);
+//
+//  if (distanceForward < 1 || distanceForward < 5) {
+//    moveBackwardInRotations(40);
+//  }
+//
+//  swivelNeck(90);
+//  swivelNeck(-90);
+//  //  determineTurn();
+//  
+//}
 
 
 void moveBackwardInRotations(int rotations) {

@@ -25,6 +25,9 @@ int targetRotations = 20;
 bool movingForward = false;
 bool movingBackward = false;
 
+unsigned long lastCheckTime = 0;  // Variable to store the last time the check function was called
+unsigned long checkInterval = 5000; 
+
 void setup() {
   pinMode(MOTOR_RIGHT_FORWARD, OUTPUT);
   pinMode(MOTOR_RIGHT_BACKWARD, OUTPUT);
@@ -45,11 +48,9 @@ void setup() {
 
 // change rotations, try turn around and maybe if it doesnt work go back to backward
 void loop() {
-    moveForwardInRotations(targetRotations);
 
-    if(millis() % 5000 == 0){
-      check();
-    }
+    moveForwardInRotations(targetRotations);
+    
 }
 
 void centerRobot() {
@@ -94,15 +95,16 @@ void moveForwardInRotations(int rotations) {
         }
 
         centerRobot();
+        timedCheck(checkInterval, check);
 //        sideIsFree();
 
 //        if (rightPulseCount >= 2 * rotations) {
-//    Serial.println("Calling check()");
-//    check(); // Call the check function
-//    rightPulseCount = 0; // Reset the pulse count
-//    leftPulseCount = 0; // Reset the pulse count
-//    Serial.println("check() called");
-//}
+//            Serial.println("Calling check()");
+//            check(); // Call the check function
+//            rightPulseCount = 0; // Reset the pulse count
+//            leftPulseCount = 0; // Reset the pulse count
+//             Serial.println("check() called");
+//         }
 
     }
 
@@ -110,17 +112,38 @@ void moveForwardInRotations(int rotations) {
     movingForward = false;
 }
 
+void timedCheck(unsigned long interval, void (*function)()) {
+    unsigned long currentTime = millis();  // Get the current time
+    
+    // Check if the interval has elapsed since the last call to the function
+    if (currentTime - lastCheckTime >= interval) {
+        function();  // Call the specified function
+        lastCheckTime = currentTime;  // Update the last check time
+    }
+}
+
 void check() {
   long distanceForward = getDistanceForward();
+  Serial.println(distanceForward);
   swivelNeck(90);
+  Serial.println(distanceForward);
+  wait(1000);
   swivelNeck(-90);
+  Serial.println(distanceForward);
+  wait(1000);
+  swivelNeck(0);
+  Serial.println(distanceForward);
 
-  if (distanceForward < 1 || distanceForward < 5) {
+  if (distanceForward < 8) {
+    Serial.println(distanceForward);
     moveBackwardInRotations(40);
   }
 
   swivelNeck(90);
+  wait(1000);
   swivelNeck(-90);
+  wait(1000);
+  swivelNeck(0);
 //  determineTurn();
   
 }
@@ -137,9 +160,9 @@ void moveBackwardInRotations(int rotations) {
         Serial.println(leftPulseCount);
 
         // Adjust motor outputs for moving backward
-        analogWrite(MOTOR_RIGHT_FORWARD, LOW);
+        analogWrite(MOTOR_RIGHT_FORWARD, 0);
         analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
-        analogWrite(MOTOR_LEFT_FORWARD, LOW);
+        analogWrite(MOTOR_LEFT_FORWARD, 0);
         analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
     }
 
