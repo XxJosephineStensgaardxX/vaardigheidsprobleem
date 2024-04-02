@@ -319,6 +319,7 @@ void stopRobot() {
   digitalWrite(MOTOR_LEFT_FORWARD, LOW);
   digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
 
+  pixels.clear();
   pixels.setPixelColor(1, pixels.Color(0, 255, 0)); // 
   pixels.setPixelColor(2, pixels.Color(0, 255, 0)); // 
   pixels.setPixelColor(3, pixels.Color(0, 255, 0)); //
@@ -337,12 +338,12 @@ void turnLeft(int rotations) {
     analogWrite(MOTOR_RIGHT_BACKWARD, LOW);
     analogWrite(MOTOR_LEFT_BACKWARD, rightSpeed);
 
-  pixels.setPixelColor(1, pixels.Color(0, 0, 0)); // 
-  pixels.setPixelColor(2, pixels.Color(0, 0, 0)); // 
-  pixels.setPixelColor(3, pixels.Color(178, 172, 136)); //
-  pixels.setPixelColor(0, pixels.Color(0, 0, 0)); // 
-  pixels.show();
-
+    pixels.clear();
+    pixels.setPixelColor(1, pixels.Color(0, 0, 0)); // 
+    pixels.setPixelColor(2, pixels.Color(0, 0, 0)); // 
+    pixels.setPixelColor(3, pixels.Color(178, 172, 136)); //
+    pixels.setPixelColor(0, pixels.Color(0, 0, 0)); // 
+    pixels.show();
   }
 
   stopRobot();
@@ -370,13 +371,10 @@ void turnRight(int rotations) {
     analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
     analogWrite(MOTOR_RIGHT_FORWARD, LOW);
     Serial.println("Rotations in turnRight: " + String(leftPulseCount));
-
-  pixels.setPixelColor(1, pixels.Color(0, 0, 0)); // 
-  pixels.setPixelColor(2, pixels.Color(174, 198, 207)); // 
-  pixels.setPixelColor(3, pixels.Color(0, 0, 0)); //
-  pixels.setPixelColor(0, pixels.Color(0, 0, 0)); //
-  pixels.show();
-
+    
+    pixels.clear();
+    pixels.setPixelColor(2, pixels.Color(174, 198, 207)); // 
+    pixels.show();
   }
 
   stopRobot();
