@@ -1,3 +1,4 @@
+
 #define SERVO_NECK_PIN 8
 #define GRIPPER_PIN 9
 #define FRONT_TRIG_PIN 12
@@ -26,7 +27,7 @@ int targetRotations = 20;
 bool movingForward = false;
 bool movingBackward = false;
 
-sideIsFreeEnabled = true;
+bool sideIsFreeEnabled = true; // Global flag to control sideIsFree function
 
 // new additions
 const int sensorCount = 6; // Number of sensors in your analog line sensor
@@ -38,13 +39,8 @@ bool waitingStart = true;
 bool startSequence = false;
 bool ending = false;
 
-bool turnedRight = false;
-
-//side is free issue, when its too far from wall, it thinks the side is free
-//centerRobot
-
 void setup() {
-
+  
   pinMode(MOTOR_RIGHT_FORWARD, OUTPUT);
   pinMode(MOTOR_RIGHT_BACKWARD, OUTPUT);
   pinMode(MOTOR_LEFT_FORWARD, OUTPUT);
@@ -65,100 +61,71 @@ void setup() {
     gripOpen();
   }
   gripOpen();
+
 }
 
 void loop() {
   long distanceForward = getDistanceForward();
-  // long rightSideDistance = getDistanceSide();
 
   if (waitingStart) {
-
     sensingBothSides();
     if (distanceForward < 25) {
-
       waitingStart = false;
       startSequence = true;
     }
-
     return wait(100);
   }
   
   if (startSequence) {
-    
     wait(2000);
-
     goForwardBasic(55);
     wait(250);
-
     gripClose();
     wait(250);
-
     turnLeft(13);
     wait(250);
-
     goForwardBasic(40);
-
     startSequence = false;
-
     return wait(250);
   }
 
   ending = blackDetected();
 
   // end sequence
-  if (ending)
-  {
+  if (ending) {
     Serial.println("black Loop");
     stopRobot();
-
     gripOpen();
     wait(150);
-
     goBackwardBasic(20);
-
     wait(150);
     gripClose();
-
-    sideIsFreeEnabled = false;
-
+    sideIsFreeEnabled = false; // Turn off sideIsFree functionality
     while (true);
   }
 
   moveForwardInRotations(targetRotations);
 }
 
-void goForwardBasic(int ticks)
-// moves the car forward for a given number of ticks
-{
+void goForwardBasic(int ticks) {
   resetRotations();
 
-  while (rightPulseCount < ticks)
-  {
+  while (rightPulseCount < ticks) {
     analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
     analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
   }
 
-  turnedRight = false;
-
   ending = blackDetected();
-
   stopRobot();
   gripClose();
 }
 
-void goBackwardBasic(int ticks)
-{
+void goBackwardBasic(int ticks) {
   resetRotations();
-  Serial.println("backward fucntion");
-  
-  while (rightPulseCount < ticks)
-  {
+  while (rightPulseCount < ticks) {
     analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
     analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
   }
-
-  turnedRight = false;
-
   stopRobot();
 }
 
@@ -166,21 +133,16 @@ void centerRobot() {
   long sideDistance = getDistanceSide();
 
   if (sideDistance > 9.2) { // Far from the side obstacle
-    Serial.println("sideDistance > 9.2");
     analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
     analogWrite(MOTOR_LEFT_FORWARD, 240);
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
-
   } else if (sideDistance < 7.4) { // Close to the side obstacle
-    Serial.println("sideDistance < 7.4");
     analogWrite(MOTOR_RIGHT_FORWARD, 255);
     analogWrite(MOTOR_LEFT_FORWARD, 215);
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
-
   } else {
-    Serial.println("sideDistance ELSE");
     analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
     analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
@@ -195,52 +157,23 @@ void moveForwardInRotations(int rotations) {
   }
 
   while (rightPulseCount < rotations && leftPulseCount < rotations) {
-    // Continuously sense distance while moving forward
     long distance = getDistanceForward();
     if (distance < 10) {
       stopRobot();
-      determineTurn(); // Call determineTurn when an obstacle is detected
-      return; // Exit the function to stopRobot moving forward
+      determineTurn();
+      return;
     }
-
-    turnedRight = false;
     
     ending = blackDetected();
-    Serial.println("black detected move");
-    
     centerRobot();
-    sideIsFree();
+    if (sideIsFreeEnabled) {
+      sideIsFree();
+    }
   }
 
   stopRobot();
   movingForward = false;
-
-//  turnedRight = false;
-//
-//  ending = blackDetected();
 }
-
-
-void moveBackwardInRotations(int rotations) {
-  if (!movingBackward) {
-    resetRotations();
-    movingBackward = true;
-  }
-
-  while (rightPulseCount < rotations && leftPulseCount < rotations) {
-    Serial.println(rightPulseCount);
-    Serial.println(leftPulseCount);
-
-    analogWrite(MOTOR_RIGHT_FORWARD, LOW);
-    analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
-    analogWrite(MOTOR_LEFT_FORWARD, LOW);
-    analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
-  }
-
-  stopRobot();
-  movingBackward = false;
-}
-
 
 void sideIsFree() {
 
@@ -252,8 +185,6 @@ void sideIsFree() {
     moveForwardInRotations(36);
     Serial.println("side is free function");
     turnRight(12);
-
-    turnedRight = true;
     moveForwardInRotations(40);
 
   }
@@ -268,7 +199,6 @@ void determineTurn() {
   if (rightSideDistance > 20) { // If side distance is free
     Serial.println("side is free DT");
     turnRight(12.5);
-    turnedRight = true;// Turning right
     moveForwardInRotations(40);
   } else if (distanceForward < 20) { // If obstacle detected in front
     swivelNeck(90);
@@ -293,7 +223,6 @@ boolean blackDetected()
   short sum = 0;
 
   Serial.println("black function");
-  turnedRight = false;
   
   queryIRSensors();
   for (int i = 0; i < 6; i++)
@@ -333,52 +262,19 @@ void sensingBothSides() {
   long leftDistance = getDistanceSide();
 }
 
-//void check() {
-//  long distanceForward = getDistanceForward();
-//  Serial.println(distanceForward);
-//  swivelNeck(90);
-//  Serial.println(distanceForward);
-//  wait(1000);
-//  swivelNeck(-90);
-//  Serial.println(distanceForward);
-//  wait(1000);
-//  swivelNeck(0);
-//  Serial.println(distanceForward);
 //
-//  if (distanceForward < 8) {
-//    Serial.println(distanceForward);
-//    moveBackwardInRotations(40);
+//void moveBackwardInRotations(int rotations) {
+//  if (!movingBackward) {
+//    resetRotations();
+//    movingBackward = true;
 //  }
 //
-//  swivelNeck(90);
-//  wait(1000);
-//  swivelNeck(-90);
-//  wait(1000);
-//  swivelNeck(0);
-////  determineTurn();
+//  while (rightPulseCount < rotations && leftPulseCount < rotations) {
+//    analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
+//    analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
+//  }
 //
-//}
-
-
-//void moveBackwardInRotations(int rotations) {
-//    if (!movingBackward) {
-//        resetRotations();
-//        movingBackward = true;
-//    }
-//
-//    while (rightPulseCount < rotations && leftPulseCount < rotations) {
-//        Serial.println(rightPulseCount);
-//        Serial.println(leftPulseCount);
-//
-//        // Adjust motor outputs for moving backward
-//        analogWrite(MOTOR_RIGHT_FORWARD, 0);
-//        analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
-//        analogWrite(MOTOR_LEFT_FORWARD, 0);
-//        analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
-//    }
-//
-//    stopRobotRobot();
-//    movingBackward = false;
+//  stopRobot();
 //}
 
 void stopRobot() {
