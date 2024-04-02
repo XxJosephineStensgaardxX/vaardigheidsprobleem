@@ -151,8 +151,8 @@ void centerRobot() {
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
 
     pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(155, 255, 0)); // 
-    pixels.setPixelColor(3, pixels.Color(155, 255, 0)); //
+    pixels.setPixelColor(2, pixels.Color(255, 209, 220)); // 
+    pixels.setPixelColor(3, pixels.Color(255, 209, 220)); //
     pixels.show();
 
   } else if (sideDistance < 7.4) { // Close to the side obstacle
@@ -162,8 +162,8 @@ void centerRobot() {
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
 
     pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(155, 255, 0)); // 
-    pixels.setPixelColor(3, pixels.Color(155, 255, 0)); //
+     pixels.setPixelColor(2, pixels.Color(255, 209, 220)); // 
+    pixels.setPixelColor(3, pixels.Color(255, 209, 220));
     pixels.show();
 
   } else {
@@ -173,8 +173,8 @@ void centerRobot() {
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
 
     pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(155, 255, 0)); // 
-    pixels.setPixelColor(3, pixels.Color(155, 255, 0)); //
+    pixels.setPixelColor(2, pixels.Color(255, 209, 220)); // 
+    pixels.setPixelColor(3, pixels.Color(255, 209, 220));
     pixels.show();
   }
 }
@@ -339,7 +339,7 @@ void turnLeft(int rotations) {
 
   pixels.setPixelColor(1, pixels.Color(0, 0, 0)); // 
   pixels.setPixelColor(2, pixels.Color(0, 0, 0)); // 
-  pixels.setPixelColor(3, pixels.Color(155, 255, 0)); //
+  pixels.setPixelColor(3, pixels.Color(178, 172, 136)); //
   pixels.setPixelColor(0, pixels.Color(0, 0, 0)); // 
   pixels.show();
 
@@ -372,7 +372,7 @@ void turnRight(int rotations) {
     Serial.println("Rotations in turnRight: " + String(leftPulseCount));
 
   pixels.setPixelColor(1, pixels.Color(0, 0, 0)); // 
-  pixels.setPixelColor(2, pixels.Color(155, 255, 0)); // 
+  pixels.setPixelColor(2, pixels.Color(174, 198, 207)); // 
   pixels.setPixelColor(3, pixels.Color(0, 0, 0)); //
   pixels.setPixelColor(0, pixels.Color(0, 0, 0)); //
   pixels.show();
