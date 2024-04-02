@@ -1,10 +1,3 @@
-const int sensorCount = 6; // Number of sensors in your analog line sensor
-const int sensorPins[sensorCount] = {A1, A2, A3, A4, A5, A6}; // Analog sensor pins (removed pins: A0 and A7)
-int sensorValues[sensorCount]; // Array to store sensor values
-bool waitingStart = true;
-bool startSequence = false;
-bool ending = false;
-bool turnRight = false;
 #define SERVO_NECK_PIN 8
 #define GRIPPER_PIN 9
 #define FRONT_TRIG_PIN 12
@@ -27,6 +20,17 @@ const int leftSpeed = 225;
 
 volatile int rightPulseCount = 0;
 volatile int leftPulseCount = 0;
+
+const int sensorCount = 6; // Number of sensors in your analog line sensor
+const int sensorPins[sensorCount] = {A1, A2, A3, A4, A5, A6}; // Analog sensor pins (removed pins: A0 and A7)
+
+int sensorValues[sensorCount]; // Array to store sensor values
+
+bool waitingStart = true;
+bool startSequence = false;
+bool ending = false;
+
+bool turnRight = false;
 
 void setup() {
 
@@ -197,19 +201,6 @@ float pulse(int TRIG_PIN, int ECHO_PIN) {
   float duration_us = pulseIn(ECHO_PIN, HIGH);
   return duration_us * .017;
 }
-
-
-// void rightRotationsUpdate() {
-//     noInterrupts();
-//     rightPulseCount++;
-//     interrupts();
-// }
-
-// void leftRotationsUpdate() {
-//     noInterrupts();
-//     leftPulseCount++;
-//     interrupts();
-// }
 
 void swivelNeck(int angle) {
     for (int i = 0; i < 10; i++) {
