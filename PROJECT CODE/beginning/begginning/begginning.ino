@@ -1,4 +1,4 @@
-const int sensorCount = 8; // Number of sensors in your analog line sensor
+const int sensorCount = 6; // Number of sensors in your analog line sensor
 const int sensorPins[sensorCount] = {A1, A2, A3, A4, A5, A6}; // Analog sensor pins (removed pins: A0 and A7)
 int sensorValues[sensorCount]; // Array to store sensor values
 bool waitingStart = true;
@@ -28,135 +28,110 @@ const int leftSpeed = 225;
 volatile int rightPulseCount = 0;
 volatile int leftPulseCount = 0;
 
-// void setup();
-// void loop();
-// void querySensors();
-// void goForwardInTicks(int ticks);
-// float getDistanceForward();
-// void gripOpen();
-// void gripClose();
-// void basicTurnLeft();
-
-
-
 void setup() {
-   
 
-    for (int i = 0; i < 4; i++)
-    {
+  pinMode(MOTOR_RIGHT_FORWARD, OUTPUT);
+  pinMode(MOTOR_RIGHT_BACKWARD, OUTPUT);
+  pinMode(MOTOR_LEFT_FORWARD, OUTPUT);
+  pinMode(MOTOR_LEFT_BACKWARD, OUTPUT);
+  pinMode(MOTOR_RIGHT_ROTATION_SENSOR, INPUT);
+  pinMode(MOTOR_LEFT_ROTATION_SENSOR, INPUT);
+
+  Serial.begin(9600);
+  pinMode(FRONT_TRIG_PIN, OUTPUT);
+  pinMode(FRONT_ECHO_PIN, INPUT);
+  pinMode(SIDE_TRIG_PIN, OUTPUT);
+  pinMode(SIDE_ECHO_PIN, INPUT);
+
+  attachInterrupt(digitalPinToInterrupt(MOTOR_RIGHT_ROTATION_SENSOR), rightRotationsUpdate, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(MOTOR_LEFT_ROTATION_SENSOR), leftRotationsUpdate, CHANGE);
+
+
+    for (int i = 0; i < 4; i++) {
         gripOpen();
     }
-
     gripOpen();
-
-
 }
 
 void loop() {
-  long distanceForward = getDistanceForward();
-  // long rightSideDistance = getDistanceSide();
+    long distanceForward = getDistanceForward();
+    // long rightSideDistance = getDistanceSide();
 
-
-  if (waitingStart)
-    {
-
+    if (waitingStart) {
         querySensors();
-        if (distanceForward  < 25)
-        {
+        if (distanceForward < 25) {
             waitingStart = false;
             startSequence = true;
         }
-
         return wait(100);
     }
 
     // the start itself;
     // the robot ought to move, pick up the stick,
     // turn left, and move forward
-    if (startSequence)
-    {
+    if (startSequence) {
         wait(2000);
-
         goForwardInTicks(55);
         wait(250);
-
         gripClose();
         wait(250);
-
         basicTurnLeft();
         wait(250);
-
         goForwardInTicks(40);
-
         startSequence = false;
-
         return wait(250);
     }
+}
 
-    void querySensors()
-    {
-      forwardDistance = getForwardDistance();
-      leftDistance = getLeftDistance();
+void querySensors() {
+    long forwardDistance = getDistanceForward();
+    // leftDistance = getLeftDistance();
+}
+
+void goForwardInTicks(int ticks) {
+    resetRotations();
+    while (rightPulseCount < ticks) {
+        analogWrite(MOTOR_RIGHT_FORWARD, 255);
+        analogWrite(MOTOR_LEFT_FORWARD, 232);
     }
-
-
-    void goForwardInTicks(int ticks)
-    // moves the car forward for a given number of ticks
-    {
-    resetCounters();
-
-    while (countRW < ticks)
-    {
-        analogWrite(RWF, 255);
-        analogWrite(LWF, 232);
-    }
-
-    turnedRight = false;
-
-    endDetected = allBlack();
-
-    stop();
+    turnRight = false;
+    ending = allBlack();
+    stopRobot();
     gripClose();
-  }
-
-  float getDistanceForward() {
-    return round(pulse(FRONT_TRIG_PIN, FRONT_ECHO_PIN) * 100.0) / 100.0;  
-  }
-
-  void gripOpen()
-  {
-    digitalWrite(servo, HIGH);
-    delayMicroseconds(2000);
-    digitalWrite(servo, LOW);
-    delay(10);
-  }
-
-  void gripClose()
-  {
-      digitalWrite(servo, HIGH);
-      delayMicroseconds(1000);
-      digitalWrite(servo, LOW);
-      delay(10);
-  }
-
-  void queryIRSensors()
-  // the function sets irValues[] to the actual values
-  {
-      for (int i = 0; i < 6; i++)
-      {
-          irValues[i] = analogRead(irSensors[i]) > 800;
-      }
-  }
-
-  
-// include this in determine turn 
-float getDistanceForward() {
-  return round(pulse(FRONT_TRIG_PIN, FRONT_ECHO_PIN) * 100.0) / 100.0;
 }
 
-float getDistanceSide() {
-  return round(pulse(SIDE_TRIG_PIN, SIDE_ECHO_PIN) * 100.0) / 100.0;
+
+
+void resetRotations() {
+  rightPulseCount = 0;
+  leftPulseCount = 0;
 }
+
+void stopRobot() {
+  digitalWrite(MOTOR_RIGHT_FORWARD, LOW);
+  digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
+  digitalWrite(MOTOR_LEFT_FORWARD, LOW);
+  digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
+}
+
+
+
+boolean allBlack()
+{
+    short sum = 0;
+
+    queryIRSensors();
+    for (int i = 0; i < 6; i++)
+    {
+        if (sensorValues[i])
+        {
+            sum++;
+        };
+    }
+
+    return sum == 6;
+}
+
 
 void rightRotationsUpdate() {
   noInterrupts();
@@ -170,7 +145,73 @@ void leftRotationsUpdate() {
   interrupts();
 }
 
-  void swivelNeck(int angle) {
+
+void basicTurnLeft()
+{
+    stopRobot();
+
+    resetRotations();
+    while (rightPulseCount < 17)
+    {
+        analogWrite(MOTOR_RIGHT_FORWARD, 255);
+        analogWrite(MOTOR_LEFT_FORWARD, 255);
+    }
+
+    stopRobot();
+}
+
+
+float getDistanceForward() {
+    return round(pulse(FRONT_TRIG_PIN, FRONT_ECHO_PIN) * 100.0) / 100.0;  
+}
+
+void gripOpen() {
+    digitalWrite(GRIPPER_PIN, HIGH);
+    delayMicroseconds(2000);
+    digitalWrite(GRIPPER_PIN, LOW);
+    delay(10);
+}
+
+void gripClose() {
+    digitalWrite(GRIPPER_PIN, HIGH);
+    delayMicroseconds(1000);
+    digitalWrite(GRIPPER_PIN, LOW);
+    delay(10);
+}
+
+void queryIRSensors() {
+    for (int i = 0; i < 6; i++) {
+        // irValues[i] = analogRead(irSensors[i]) > 800;
+    }
+}
+
+float getDistanceSide() {
+    return round(pulse(SIDE_TRIG_PIN, SIDE_ECHO_PIN) * 100.0) / 100.0;
+}
+
+float pulse(int TRIG_PIN, int ECHO_PIN) {
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  float duration_us = pulseIn(ECHO_PIN, HIGH);
+  return duration_us * .017;
+}
+
+
+// void rightRotationsUpdate() {
+//     noInterrupts();
+//     rightPulseCount++;
+//     interrupts();
+// }
+
+// void leftRotationsUpdate() {
+//     noInterrupts();
+//     leftPulseCount++;
+//     interrupts();
+// }
+
+void swivelNeck(int angle) {
     for (int i = 0; i < 10; i++) {
         int pulseWidth = map(angle, -90, 90, 600, 2400); // Map the angle to pulse width
         digitalWrite(SERVO_NECK_PIN, HIGH);              // Set the pin high
@@ -180,7 +221,7 @@ void leftRotationsUpdate() {
     }
 } 
 
-  void wait(int timeToWait) {
+void wait(int timeToWait) {
     unsigned long startTime = millis(); // Get the current time
 
     // Loop until the desired time has passed
