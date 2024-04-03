@@ -61,7 +61,6 @@ void setup() {
     gripOpen();
   }
   gripOpen();
-
 }
 
 void loop() {
@@ -94,13 +93,14 @@ void loop() {
   // end sequence
   if (ending) {
     Serial.println("black Loop");
+    sideIsFreeEnabled = false; // Turn off sideIsFree functionality
     stopRobot();
     gripOpen();
     wait(150);
     goBackwardBasic(20);
     wait(150);
     gripClose();
-    sideIsFreeEnabled = false; // Turn off sideIsFree functionality
+
     while (true);
   }
 
@@ -253,7 +253,7 @@ void gripClose() {
 
 void queryIRSensors() {
   for (int i = 0; i < 6; i++) {
-    // irValues[i] = analogRead(irSensors[i]) > 800;
+     sensorValues[i] = analogRead(sensorPins[i]) > 800;
   }
 }
 

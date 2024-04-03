@@ -26,6 +26,7 @@ bool movingForward = false;
 bool movingBackward = false;
 
 void setup() {
+  
   pinMode(MOTOR_RIGHT_FORWARD, OUTPUT);
   pinMode(MOTOR_RIGHT_BACKWARD, OUTPUT);
   pinMode(MOTOR_LEFT_FORWARD, OUTPUT);

@@ -95,20 +95,20 @@ void loop() {
     return wait(250);
   }
 
-  ending = blackDetected();
-
-  // end sequence
-  if (ending) {
-    Serial.println("black Loop");
-    stopRobot();
-    gripOpen();
-    wait(150);
-    goBackwardBasic(20);
-    wait(150);
-    gripClose();
-    sideIsFreeEnabled = false; // Turn off sideIsFree functionality
-    while (true);
-  }
+//  ending = blackDetected();
+//
+//  // end sequence
+//  if (ending) {
+//    Serial.println("black Loop");
+//    stopRobot();
+//    gripOpen();
+//    wait(150);
+//    goBackwardBasic(20);
+//    wait(150);
+//    gripClose();
+//    sideIsFreeEnabled = false; // Turn off sideIsFree functionality
+//    while (true);
+//  }
 
   moveForwardInRotations(targetRotations);
 }
@@ -126,20 +126,20 @@ void goForwardBasic(int ticks) {
   gripClose();
 }
 
-void goBackwardBasic(int ticks) {
-  resetRotations();
-  while (rightPulseCount < ticks) {
-    analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
-    analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
-
-    // pixels.clear();
-    // pixels.setPixelColor(1, pixels.Color(0, 255, 0)); //
-    // pixels.setPixelColor(0, pixels.Color(0, 255, 0)); //
-    // pixels.show();
-  }
-
-  stopRobot();
-}
+//void goBackwardBasic(int ticks) {
+//  resetRotations();
+//  while (rightPulseCount < ticks) {
+//    analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
+//    analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
+//
+//    // pixels.clear();
+//    // pixels.setPixelColor(1, pixels.Color(0, 255, 0)); //
+//    // pixels.setPixelColor(0, pixels.Color(0, 255, 0)); //
+//    // pixels.show();
+//  }
+//
+//  stopRobot();
+//}
 
 void centerRobot() {
   long sideDistance = getDistanceSide();
@@ -193,11 +193,11 @@ void moveForwardInRotations(int rotations) {
       return;
     }
     
-    ending = blackDetected();
+//    ending = blackDetected();
     centerRobot();
-    if (sideIsFreeEnabled) {
+//    if (sideIsFreeEnabled) {
       sideIsFree();
-    }
+//    }
   }
 
   stopRobot();
