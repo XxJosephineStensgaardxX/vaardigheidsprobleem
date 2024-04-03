@@ -1,3 +1,5 @@
+#include <Adafruit_NeoPixel.h>
+
 #define SERVO_NECK_PIN 8
 #define GRIPPER_PIN 9
 #define FRONT_TRIG_PIN 12
@@ -13,7 +15,6 @@
 #define MOTOR_LEFT_FORWARD 6
 #define MOTOR_LEFT_BACKWARD 11
 
-#include <Adafruit_NeoPixel.h>
 #define PIN 7         // Digital pin Neopixels (Pin: IO)
 #define NUM_PIXELS 4  // Number of Neopixels
 Adafruit_NeoPixel pixels(NUM_PIXELS, PIN, NEO_RGB );
@@ -41,6 +42,8 @@ bool waitingStart = true;
 bool startSequence = false;
 bool ending = false;
 
+bool gripperTriggered = false; // Flag to track if the gripper has been triggered
+
 void setup() {
 
   pixels.begin();  // Initialize NeoPixels
@@ -66,7 +69,9 @@ void setup() {
   for (int i = 0; i < 4; i++) {
     gripOpen();
   }
-  gripOpen();
+
+  // Set the gripperTriggered flag to true after the gripper has been triggered once
+  gripperTriggered = true;
 
 }
 
@@ -83,6 +88,7 @@ void loop() {
   }
   
   if (startSequence) {
+    
     wait(2000);
     goForwardBasic(55);
     wait(250);
@@ -90,7 +96,7 @@ void loop() {
     wait(250);
     turnLeft(13);
     wait(250);
-    goForwardBasic(40);
+    goForwardBasic(60);
     startSequence = false;
     return wait(250);
   }
@@ -241,7 +247,7 @@ void determineTurn() {
 
     if (leftDistance > 15) {
       Serial.println("Turning left");
-      turnLeft(13);
+      turnLeft(12.5);
     } else if (leftDistance < 15) {
       Serial.println("Turning Around");
       turnRight(20);

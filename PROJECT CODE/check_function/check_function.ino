@@ -112,16 +112,6 @@ void moveForwardInRotations(int rotations) {
     movingForward = false;
 }
 
-void timedCheck(unsigned long interval, void (*function)()) {
-    unsigned long currentTime = millis();  // Get the current time
-    
-    // Check if the interval has elapsed since the last call to the function
-    if (currentTime - lastCheckTime >= interval) {
-        function();  // Call the specified function
-        lastCheckTime = currentTime;  // Update the last check time
-    }
-}
-
 void check() {
   long distanceForward = getDistanceForward();
   Serial.println(distanceForward);
