@@ -16,7 +16,7 @@
 #include <Adafruit_NeoPixel.h>
 #define PIN 7         // Digital pin Neopixels (Pin: IO)
 #define NUM_PIXELS 4  // Number of Neopixels
-Adafruit_NeoPixel pixels(NUM_PIXELS, PIN, NEO_RGB );
+Adafruit_NeoPixel pixels(NUM_PIXELS, PIN, NEO_RGB);
 
 const int rightSpeed = 230;
 const int leftSpeed = 225;
@@ -65,9 +65,11 @@ void setup() {
 
   for (int i = 0; i < 4; i++) {
     gripOpen();
-  }
-  gripOpen();
-
+    Serial.println("inside for loop, open grip");
+  } 
+  
+    gripOpen();
+  
 }
 
 void loop() {
@@ -95,20 +97,20 @@ void loop() {
     return wait(250);
   }
 
-//  ending = blackDetected();
-//
-//  // end sequence
-//  if (ending) {
-//    Serial.println("black Loop");
-//    stopRobot();
-//    gripOpen();
-//    wait(150);
-//    goBackwardBasic(20);
-//    wait(150);
-//    gripClose();
-//    sideIsFreeEnabled = false; // Turn off sideIsFree functionality
-//    while (true);
-//  }
+  //  ending = blackDetected();
+  //
+  //  // end sequence
+  //  if (ending) {
+  //    Serial.println("black Loop");
+  //    stopRobot();
+  //    gripOpen();
+  //    wait(150);
+  //    goBackwardBasic(20);
+  //    wait(150);
+  //    gripClose();
+  //    sideIsFreeEnabled = false; // Turn off sideIsFree functionality
+  //    while (true);
+  //  }
 
   moveForwardInRotations(targetRotations);
 }
@@ -193,11 +195,11 @@ void moveForwardInRotations(int rotations) {
       return;
     }
     
-//    ending = blackDetected();
-    centerRobot();
-//    if (sideIsFreeEnabled) {
+    //    ending = blackDetected();
+      centerRobot();
+    //    if (sideIsFreeEnabled) {
       sideIsFree();
-//    }
+    //    }
   }
 
   stopRobot();
@@ -292,26 +294,26 @@ void sensingBothSides() {
 }
 
 
-// void moveBackwardInRotations(int rotations) {
-//  if (!movingBackward) {
-//    resetRotations();
-//    movingBackward = true;
-//  }
+  // void moveBackwardInRotations(int rotations) {
+  //  if (!movingBackward) {
+  //    resetRotations();
+  //    movingBackward = true;
+  //  }
 
-//  while (rightPulseCount < rotations && leftPulseCount < rotations) {
-//    analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
-//    analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
+  //  while (rightPulseCount < rotations && leftPulseCount < rotations) {
+  //    analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
+  //    analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
 
-//   pixels.setPixelColor(1, pixels.Color(0, 255, 0)); //
-//   pixels.setPixelColor(2, pixels.Color(0, 0, 0)); // 
-//   pixels.setPixelColor(3, pixels.Color(0, 0, 0)); // 
-//   pixels.setPixelColor(0, pixels.Color(0, 255, 0)); //
-//   pixels.show();
+  //   pixels.setPixelColor(1, pixels.Color(0, 255, 0)); //
+  //   pixels.setPixelColor(2, pixels.Color(0, 0, 0)); // 
+  //   pixels.setPixelColor(3, pixels.Color(0, 0, 0)); // 
+  //   pixels.setPixelColor(0, pixels.Color(0, 255, 0)); //
+  //   pixels.show();
 
-//  }
+  //  }
 
-//  stopRobot();
-// }
+  //  stopRobot();
+  // }
 
 void stopRobot() {
   digitalWrite(MOTOR_RIGHT_FORWARD, LOW);
