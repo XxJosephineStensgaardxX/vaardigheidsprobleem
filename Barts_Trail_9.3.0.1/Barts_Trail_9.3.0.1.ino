@@ -5,25 +5,27 @@
 
 #define SERVO_NECK_PIN 8
 #define GRIPPER_PIN 9
-#define FRONT_TRIG_PIN 12
-#define FRONT_ECHO_PIN 13
-#define SIDE_TRIG_PIN A1 //analogPin
-#define SIDE_ECHO_PIN A0
+#define FRONT_TRIG_PIN 13
+#define FRONT_ECHO_PIN 12
+#define SIDE_TRIG_PIN A0 //analogPin
+#define SIDE_ECHO_PIN A1
 
 #define MOTOR_RIGHT_ROTATION_SENSOR 3
 #define MOTOR_LEFT_ROTATION_SENSOR 2
 
-#define MOTOR_RIGHT_FORWARD 10
-#define MOTOR_RIGHT_BACKWARD 5
-#define MOTOR_LEFT_FORWARD 6
-#define MOTOR_LEFT_BACKWARD 11
+#define MOTOR_RIGHT_FORWARD 6
+#define MOTOR_RIGHT_BACKWARD 11
+#define MOTOR_LEFT_FORWARD 5
+#define MOTOR_LEFT_BACKWARD 10
 
 #define PIN 7         // Digital pin Neopixels (Pin: IO)
 #define NUM_PIXELS 4  // Number of Neopixels
 Adafruit_NeoPixel pixels(NUM_PIXELS, PIN, NEO_RGB );
 
+#define INTERRUPT_COUNTER_INTERVAL  15    // interval in ms for the interruptroutine to be executed
+
 const int rightSpeed = 230;
-const int leftSpeed = 225;
+const int leftSpeed = 205;
 
 volatile int rightPulseCount = 0;
 volatile int leftPulseCount = 0;
@@ -46,11 +48,6 @@ bool startSequence = false;
 bool ending = false;
 
 bool gripperTriggered = false; // Flag to track if the gripper has been triggered
-
-unsigned long lastRotationCheckTime = 0;  // Variable to store the last time rotation counts were checked
-const unsigned long rotationCheckInterval = 1000;  // Interval (in milliseconds) for checking rotation counts
-int prevRightPulseCount = 0;  // Variable to store previous right wheel rotation count
-int prevLeftPulseCount = 0; 
 
 void setup() {
 
@@ -100,6 +97,7 @@ void loop() {
 //  performStuckCheck();
   
   long distanceForward = getDistanceForward();
+  Serial.println(distanceForward);
 
   if (waitingStart) {
     sensingBothSides();
@@ -179,10 +177,12 @@ void goBackwardBasic(int ticks) {
 
 void centerRobot() {
   long sideDistance = getDistanceSide();
+  Serial.println(sideDistance);
 
-  if (sideDistance > 9.2) { // Far from the side obstacle
+  if (sideDistance > 9.2) {// Far from the side obstacle
+    Serial.println(sideDistance);
     analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
-    analogWrite(MOTOR_LEFT_FORWARD, 240);
+    analogWrite(MOTOR_LEFT_FORWARD, 222);
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
 
@@ -193,7 +193,7 @@ void centerRobot() {
 
   } else if (sideDistance < 7.4) { // Close to the side obstacle
     analogWrite(MOTOR_RIGHT_FORWARD, 255);
-    analogWrite(MOTOR_LEFT_FORWARD, 215);
+    analogWrite(MOTOR_LEFT_FORWARD, 195);
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
 
@@ -239,32 +239,6 @@ void moveForwardInRotations(int rotations) {
   stopRobot();
   movingForward = false;
 }
-
-//void performStuckCheck() {
-//  // Check if it's time to perform the stuck check
-//  if (millis() - lastRotationCheckTime >= rotationCheckInterval) {
-//    // Update last check time
-//    lastRotationCheckTime = millis();
-//    
-//    // Check if rotation counts remain unchanged
-//    if (rightPulseCount == prevRightPulseCount && leftPulseCount == prevLeftPulseCount) {
-//      // Perform stuck recovery actions
-//      stuckRecovery();
-//    }
-//    
-//    // Update previous rotation counts
-//    prevRightPulseCount = rightPulseCount;
-//    prevLeftPulseCount = leftPulseCount;
-//  }
-//}
-//
-//void stuckRecovery() {
-//  Serial.println("Robot is stuck! Performing recovery actions...");
-//  goBackwardBasic(10); 
-//  centerRobot(); 
-//  
-//}
-
 
 bool isStuck() {
 
@@ -481,20 +455,48 @@ float getDistanceSide() {
   return round(pulse(SIDE_TRIG_PIN, SIDE_ECHO_PIN) * 100.0) / 100.0;
 }
 
-float getD istanceForward() {
+float getDistanceForward() {
   return round(pulse(FRONT_TRIG_PIN, FRONT_ECHO_PIN) * 100.0) / 100.0;
 }
 
 void rightRotationsUpdate() {
   noInterrupts();
-  rightPulseCount++;
-  interrupts();
+  static unsigned long timer;
+  static bool lastState;
+  if (millis() > timer) {
+    bool state = digitalRead(MOTOR_RIGHT_ROTATION_SENSOR);
+    if (state != lastState) {
+       rightPulseCount++;
+       lastState = state;
+//       if(state){
+//       pixels.clear();
+//     pixels.setPixelColor(1, pixels.Color(0, 255, 0)); 
+//     pixels.show();
+//       }
+//       else {
+//        pixels.clear();
+//        pixels.setPixelColor(1, pixels.Color(0, 0, 255));
+//         pixels.show();
+//       }
+    }
+    timer = millis() + INTERRUPT_COUNTER_INTERVAL;
+  } 
+  interrupts(); 
 }
 
-void leftRotationsUpdate() {
+void leftRotationsUpdate() {  
   noInterrupts();
-  leftPulseCount++;
-  interrupts();
+  static unsigned long timer;
+  static bool lastState;
+  if (millis() > timer) {
+    bool state = digitalRead(MOTOR_LEFT_ROTATION_SENSOR);
+    if (state != lastState) {
+       leftPulseCount++;
+       lastState = state;
+    }
+    timer = millis() + INTERRUPT_COUNTER_INTERVAL;
+  } 
+  interrupts(); 
 }
 
 void swivelNeck(int angle) {

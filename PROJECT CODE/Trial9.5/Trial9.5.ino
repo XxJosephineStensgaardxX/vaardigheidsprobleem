@@ -1,5 +1,5 @@
 
-// it deosnt excuete the end, the start is fucky wucky now, the stuck fucntion sorta works?
+// it deosnt excuete the end, the stuck fucntion sorta works?
 
 #include <Adafruit_NeoPixel.h>
 
@@ -21,6 +21,8 @@
 #define PIN 7         // Digital pin Neopixels (Pin: IO)
 #define NUM_PIXELS 4  // Number of Neopixels
 Adafruit_NeoPixel pixels(NUM_PIXELS, PIN, NEO_RGB );
+
+#define INTERRUPT_COUNTER_INTERVAL  15    // interval in ms for the interruptroutine to be executed
 
 const int rightSpeed = 230;
 const int leftSpeed = 225;
@@ -46,11 +48,6 @@ bool startSequence = false;
 bool ending = false;
 
 bool gripperTriggered = false; // Flag to track if the gripper has been triggered
-
-unsigned long lastRotationCheckTime = 0;  // Variable to store the last time rotation counts were checked
-const unsigned long rotationCheckInterval = 1000;  // Interval (in milliseconds) for checking rotation counts
-int prevRightPulseCount = 0;  // Variable to store previous right wheel rotation count
-int prevLeftPulseCount = 0; 
 
 void setup() {
 
@@ -111,8 +108,9 @@ void loop() {
   }
   
   if (startSequence) {
-    
-    wait(2000);
+
+    sideIsFreeEnabled = false;
+    wait(800);
     goForwardBasic(55);
     wait(250);
     gripClose();
@@ -121,6 +119,8 @@ void loop() {
     wait(250);
     goForwardBasic(60);
     startSequence = false;
+
+    sideIsFreeEnabled = true;
     return wait(250);
   }
 
@@ -240,37 +240,17 @@ void moveForwardInRotations(int rotations) {
   movingForward = false;
 }
 
-//void performStuckCheck() {
-//  // Check if it's time to perform the stuck check
-//  if (millis() - lastRotationCheckTime >= rotationCheckInterval) {
-//    // Update last check time
-//    lastRotationCheckTime = millis();
-//    
-//    // Check if rotation counts remain unchanged
-//    if (rightPulseCount == prevRightPulseCount && leftPulseCount == prevLeftPulseCount) {
-//      // Perform stuck recovery actions
-//      stuckRecovery();
-//    }
-//    
-//    // Update previous rotation counts
-//    prevRightPulseCount = rightPulseCount;
-//    prevLeftPulseCount = leftPulseCount;
-//  }
-//}
-//
-//void stuckRecovery() {
-//  Serial.println("Robot is stuck! Performing recovery actions...");
-//  goBackwardBasic(10); 
-//  centerRobot(); 
-//  
-//}
-
-
 bool isStuck() {
 
-  if (rightPulseCount == 0 || leftPulseCount == 0) {
+  if (rightPulseCount == 0 && leftPulseCount == 0) {
     return true;
   }
+
+  else if(rightPulseCount == 0 || leftPulseCount == 0)
+  {
+    return true;
+  }
+  
   return false;
 }
 
@@ -307,7 +287,7 @@ void determineTurn() {
     moveForwardInRotations(40);
   } else if (distanceForward < 20) { // If obstacle detected in front
     swivelNeck(90);
-    wait(1000);
+    wait(500);
     long leftDistance = getDistanceForward();
     Serial.print("Left distance: ");
     Serial.println(leftDistance);
@@ -342,7 +322,7 @@ boolean blackDetected()
   Serial.print("Sum: ");
   Serial.println(sum);
 
-  return sum == 4; //4 coz it never really meets 6
+  return sum <= 4; //4 coz it never really meets 6
 }
 
 void gripOpen() {
@@ -369,28 +349,6 @@ void sensingBothSides() {
   long forwardDistance = getDistanceForward();
   long leftDistance = getDistanceSide();
 }
-
-
-// void moveBackwardInRotations(int rotations) {
-//  if (!movingBackward) {
-//    resetRotations();
-//    movingBackward = true;
-//  }
-
-//  while (rightPulseCount < rotations && leftPulseCount < rotations) {
-//    analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
-//    analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
-
-//   pixels.setPixelColor(1, pixels.Color(0, 255, 0)); //
-//   pixels.setPixelColor(2, pixels.Color(0, 0, 0)); // 
-//   pixels.setPixelColor(3, pixels.Color(0, 0, 0)); // 
-//   pixels.setPixelColor(0, pixels.Color(0, 255, 0)); //
-//   pixels.show();
-
-//  }
-
-//  stopRobot();
-// }
 
 void stopRobot() {
   digitalWrite(MOTOR_RIGHT_FORWARD, LOW);
@@ -429,7 +387,7 @@ void turnLeft(int rotations) {
     moveForwardInRotations(5);
   }
 
-  wait(2000);
+  wait(1000);
 }
 
 void turnRight(int rotations) {
@@ -446,7 +404,7 @@ void turnRight(int rotations) {
     Serial.println("Rotations in turnRight: " + String(leftPulseCount));
 
     pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(174, 198, 207)); // 
+    pixels.setPixelColor(2, pixels.Color(174, 198, 207)); 
     pixels.show();
   }
 
@@ -460,7 +418,7 @@ void turnRight(int rotations) {
     moveForwardInRotations(5);
   }
 
-  wait(2000);
+  wait(1000);
 }
 
 void resetRotations() {
@@ -481,20 +439,48 @@ float getDistanceSide() {
   return round(pulse(SIDE_TRIG_PIN, SIDE_ECHO_PIN) * 100.0) / 100.0;
 }
 
-float getD istanceForward() {
+float getDistanceForward() {
   return round(pulse(FRONT_TRIG_PIN, FRONT_ECHO_PIN) * 100.0) / 100.0;
 }
 
 void rightRotationsUpdate() {
   noInterrupts();
-  rightPulseCount++;
-  interrupts();
+  static unsigned long timer;
+  static bool lastState;
+  if (millis() > timer) {
+    bool state = digitalRead(MOTOR_RIGHT_ROTATION_SENSOR);
+    if (state != lastState) {
+       rightPulseCount++;
+       lastState = state;
+//       if(state){
+//       pixels.clear();
+//     pixels.setPixelColor(1, pixels.Color(0, 255, 0)); 
+//     pixels.show();
+//       }
+//       else {
+//        pixels.clear();
+//        pixels.setPixelColor(1, pixels.Color(0, 0, 255));
+//         pixels.show();
+//       }
+    }
+    timer = millis() + INTERRUPT_COUNTER_INTERVAL;
+  } 
+  interrupts(); 
 }
 
-void leftRotationsUpdate() {
+void leftRotationsUpdate() {  
   noInterrupts();
-  leftPulseCount++;
-  interrupts();
+  static unsigned long timer;
+  static bool lastState;
+  if (millis() > timer) {
+    bool state = digitalRead(MOTOR_LEFT_ROTATION_SENSOR);
+    if (state != lastState) {
+       leftPulseCount++;
+       lastState = state;
+    }
+    timer = millis() + INTERRUPT_COUNTER_INTERVAL;
+  } 
+  interrupts(); 
 }
 
 void swivelNeck(int angle) {
