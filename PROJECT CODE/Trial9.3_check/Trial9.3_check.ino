@@ -1,3 +1,6 @@
+
+// it deosnt excuete the end, the start is fucky wucky now, the stuck fucntion sorta works?
+
 #include <Adafruit_NeoPixel.h>
 
 #define SERVO_NECK_PIN 8
@@ -44,6 +47,11 @@ bool ending = false;
 
 bool gripperTriggered = false; // Flag to track if the gripper has been triggered
 
+unsigned long lastRotationCheckTime = 0;  // Variable to store the last time rotation counts were checked
+const unsigned long rotationCheckInterval = 1000;  // Interval (in milliseconds) for checking rotation counts
+int prevRightPulseCount = 0;  // Variable to store previous right wheel rotation count
+int prevLeftPulseCount = 0; 
+
 void setup() {
 
   pixels.begin();  // Initialize NeoPixels
@@ -67,18 +75,20 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(MOTOR_LEFT_ROTATION_SENSOR), leftRotationsUpdate, CHANGE);
 
   for (int i = 0; i < 4; i++) {
-    Serial.println("inside for loop in void setup");
+    Serial.println("inside setup, gripper loop");
     gripOpen();
   }
 
-  Serial.println("in void setup gripper is getting triggered");
-
+  Serial.println("inside setup, outside loop");
   // Set the gripperTriggered flag to true after the gripper has been triggered once
   gripperTriggered = true;
 
 }
 
 void loop() {
+
+//  performStuckCheck();
+  
   long distanceForward = getDistanceForward();
 
   if (waitingStart) {
@@ -121,7 +131,12 @@ void loop() {
     while (true);
   }
 
-  moveForwardInRotations(targetRotations);
+  if (isStuck()) {
+    recoverFromStuck();
+  } else {
+    moveForwardInRotations(targetRotations);
+  }
+
 }
 
 void goForwardBasic(int ticks) {
@@ -215,6 +230,45 @@ void moveForwardInRotations(int rotations) {
   movingForward = false;
 }
 
+//void performStuckCheck() {
+//  // Check if it's time to perform the stuck check
+//  if (millis() - lastRotationCheckTime >= rotationCheckInterval) {
+//    // Update last check time
+//    lastRotationCheckTime = millis();
+//    
+//    // Check if rotation counts remain unchanged
+//    if (rightPulseCount == prevRightPulseCount && leftPulseCount == prevLeftPulseCount) {
+//      // Perform stuck recovery actions
+//      stuckRecovery();
+//    }
+//    
+//    // Update previous rotation counts
+//    prevRightPulseCount = rightPulseCount;
+//    prevLeftPulseCount = leftPulseCount;
+//  }
+//}
+//
+//void stuckRecovery() {
+//  Serial.println("Robot is stuck! Performing recovery actions...");
+//  goBackwardBasic(10); 
+//  centerRobot(); 
+//  
+//}
+
+
+bool isStuck() {
+
+  if (rightPulseCount == 0 && leftPulseCount == 0) {
+    return true;
+  }
+  return false;
+}
+
+void recoverFromStuck() {
+  
+  goBackwardBasic(60);
+ 
+}
 
 void sideIsFree() {
 
@@ -389,6 +443,7 @@ void turnRight(int rotations) {
   stopRobot();
   wait(150);
 
+  // Continue moving forward if obstacle is cleared
   long distance = getDistanceForward();
   if (distance > 15) {
     wait(100);
