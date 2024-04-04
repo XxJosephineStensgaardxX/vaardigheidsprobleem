@@ -1,3 +1,6 @@
+
+// it deosnt excuete the end, the stuck fucntion sorta works?
+
 #include <Adafruit_NeoPixel.h>
 
 #define SERVO_NECK_PIN 8
@@ -48,9 +51,9 @@ bool gripperTriggered = false; // Flag to track if the gripper has been triggere
 
 void setup() {
 
-  pixels.begin();  // Initialize NeoPixels
-  pixels.show();   // Initialize all pixels to 'off'
-  pixels.setBrightness(50);  // Set NeoPixel brightness
+//  pixels.begin();  // Initialize NeoPixels
+//  pixels.show();   // Initialize all pixels to 'off'
+//  pixels.setBrightness(50);  // Set NeoPixel brightness
   
   pinMode(MOTOR_RIGHT_FORWARD, OUTPUT);
   pinMode(MOTOR_RIGHT_BACKWARD, OUTPUT);
@@ -59,39 +62,31 @@ void setup() {
   pinMode(MOTOR_RIGHT_ROTATION_SENSOR, INPUT);
   pinMode(MOTOR_LEFT_ROTATION_SENSOR, INPUT);
 
-  Serial.println("Setup pins initialized.");
-
   Serial.begin(9600);
-  Serial.println("Serial initialized.");
-  
   pinMode(FRONT_TRIG_PIN, OUTPUT);
   pinMode(FRONT_ECHO_PIN, INPUT);
   pinMode(SIDE_TRIG_PIN, OUTPUT);
   pinMode(SIDE_ECHO_PIN, INPUT);
 
-  Serial.println("Ultrasonic pins initialized.");
-
   attachInterrupt(digitalPinToInterrupt(MOTOR_RIGHT_ROTATION_SENSOR), rightRotationsUpdate, CHANGE);
   attachInterrupt(digitalPinToInterrupt(MOTOR_LEFT_ROTATION_SENSOR), leftRotationsUpdate, CHANGE);
 
-  Serial.println("Interrupts attached.");
-    
 //  Serial.println(millis());
 //  if (millis() < 1000){
 //
-////    pixels.clear();
-////     pixels.setPixelColor(1, pixels.Color(0, 0, 255)); 
-////     pixels.setPixelColor(0, pixels.Color(0, 0, 255)); 
-////     pixels.show();
+//    pixels.clear();
+//     pixels.setPixelColor(1, pixels.Color(0, 0, 255)); 
+//     pixels.setPixelColor(0, pixels.Color(0, 0, 255)); 
+//     pixels.show();
 //    
 //  }
 
-  Serial.println("Gripper initialization starting.");
   for (int i = 0; i < 4; i++) {
+    Serial.println("inside setup, gripper loop");
     gripOpen();
   }
-  
-  Serial.println("Gripper initialized.");
+
+  Serial.println("inside setup, outside loop");
   // Set the gripperTriggered flag to true after the gripper has been triggered once
   gripperTriggered = true;
 
@@ -99,11 +94,9 @@ void setup() {
 
 void loop() {
 
-  Serial.println("Entering loop.");
+//  performStuckCheck();
   
   long distanceForward = getDistanceForward();
-  Serial.print("Distance Forward: ");
-  Serial.println(distanceForward);
 
   if (waitingStart) {
     sensingBothSides();
@@ -115,8 +108,7 @@ void loop() {
   }
   
   if (startSequence) {
-    Serial.println("Starting sequence.");
-  
+
     sideIsFreeEnabled = false;
     wait(800);
     goForwardBasic(55);
@@ -132,25 +124,24 @@ void loop() {
     return wait(250);
   }
 
-  ending = blackDetected();
-  Serial.print("Ending: ");
-  Serial.println(ending);
-
-  // end sequence
-  if (ending) {
-    Serial.println("black Loop");
-    stopRobot();
-    gripOpen();
-    wait(150);
-    goBackwardBasic(20);
-    wait(150);
-    gripClose();
-    sideIsFreeEnabled = false; // Turn off sideIsFree functionality
-    while (true);
-  }
+//  ending = blackDetected();
+//  Serial.print("Ending: ");
+//  Serial.println(ending);
+//
+//  // end sequence
+//  if (ending) {
+//    Serial.println("black Loop");
+//    stopRobot();
+//    gripOpen();
+//    wait(150);
+//    goBackwardBasic(20);
+//    wait(150);
+//    gripClose();
+//    sideIsFreeEnabled = false; // Turn off sideIsFree functionality
+//    while (true);
+//  }
 
   if (isStuck()) {
-    Serial.println("Stuck detected.");
     recoverFromStuck();
   } else {
     moveForwardInRotations(targetRotations);
@@ -159,7 +150,6 @@ void loop() {
 }
 
 void goForwardBasic(int ticks) {
-  Serial.println("Going forward basic.");
   resetRotations();
 
   while (rightPulseCount < ticks) {
@@ -173,7 +163,6 @@ void goForwardBasic(int ticks) {
 }
 
 void goBackwardBasic(int ticks) {
-  Serial.println("Going backward basic.");
   resetRotations();
   while (rightPulseCount < ticks) {
     analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
@@ -189,7 +178,6 @@ void goBackwardBasic(int ticks) {
 }
 
 void centerRobot() {
-  Serial.println("Centering robot.");
   long sideDistance = getDistanceSide();
 
   if (sideDistance > 9.2) { // Far from the side obstacle
@@ -198,10 +186,10 @@ void centerRobot() {
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
 
-    pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(255, 209, 220)); // 
-    pixels.setPixelColor(3, pixels.Color(255, 209, 220)); //
-    pixels.show();
+//    pixels.clear();
+//    pixels.setPixelColor(2, pixels.Color(255, 209, 220)); // 
+//    pixels.setPixelColor(3, pixels.Color(255, 209, 220)); //
+//    pixels.show();
 
   } else if (sideDistance < 7.4) { // Close to the side obstacle
     analogWrite(MOTOR_RIGHT_FORWARD, 255);
@@ -209,10 +197,10 @@ void centerRobot() {
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
 
-    pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(255, 209, 220)); // 
-    pixels.setPixelColor(3, pixels.Color(255, 209, 220));
-    pixels.show();
+//    pixels.clear();
+//    pixels.setPixelColor(2, pixels.Color(255, 209, 220)); // 
+//    pixels.setPixelColor(3, pixels.Color(255, 209, 220));
+//    pixels.show();
 
   } else {
     analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
@@ -220,15 +208,14 @@ void centerRobot() {
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
 
-    pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(255, 209, 220)); // 
-    pixels.setPixelColor(3, pixels.Color(255, 209, 220));
-    pixels.show();
+//    pixels.clear();
+//    pixels.setPixelColor(2, pixels.Color(255, 209, 220)); // 
+//    pixels.setPixelColor(3, pixels.Color(255, 209, 220));
+//    pixels.show();
   }
 }
 
 void moveForwardInRotations(int rotations) {
-  Serial.println("Moving forward in rotations.");
   if (!movingForward) {
     resetRotations();
     movingForward = true;
@@ -254,7 +241,7 @@ void moveForwardInRotations(int rotations) {
 }
 
 bool isStuck() {
-  Serial.println("Checking if stuck.");
+
   if (rightPulseCount == 0 && leftPulseCount == 0) {
     return true;
   }
@@ -268,14 +255,12 @@ bool isStuck() {
 }
 
 void recoverFromStuck() {
-  Serial.println("Recovering from stuck.");
   
   goBackwardBasic(60);
  
 }
 
 void sideIsFree() {
-  Serial.println("Checking if side is free.");
 
   long rightSideDistance = getDistanceSide();
   Serial.print(rightSideDistance);
@@ -293,7 +278,6 @@ void sideIsFree() {
 }
 
 void determineTurn() {
-  Serial.println("Determining turn.");
   long distanceForward = getDistanceForward();
   long rightSideDistance = getDistanceSide();
 
@@ -321,7 +305,6 @@ void determineTurn() {
 
 boolean blackDetected()
 {
-  Serial.println("Checking for black detection.");
   short sum = 0;
 
   Serial.println("black function");
@@ -343,7 +326,6 @@ boolean blackDetected()
 }
 
 void gripOpen() {
-  Serial.println("Opening gripper.");
   digitalWrite(GRIPPER_PIN, HIGH);
   delayMicroseconds(2000);
   digitalWrite(GRIPPER_PIN, LOW);
@@ -351,7 +333,6 @@ void gripOpen() {
 }
 
 void gripClose() {
-  Serial.println("Closing gripper.");
   digitalWrite(GRIPPER_PIN, HIGH);
   delayMicroseconds(1000);
   digitalWrite(GRIPPER_PIN, LOW);
@@ -359,32 +340,28 @@ void gripClose() {
 }
 
 void queryIRSensors() {
-   Serial.println("Querying IR sensors.");
   for (int i = 0; i < 6; i++) {
      sensorValues[i] = analogRead(sensorPins[i]) > 800;
   }
 }
 
 void sensingBothSides() {
-  Serial.println("Sensing both sides.");
   long forwardDistance = getDistanceForward();
   long leftDistance = getDistanceSide();
 }
 
 void stopRobot() {
-  Serial.println("Stoping robot.");
   digitalWrite(MOTOR_RIGHT_FORWARD, LOW);
   digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
   digitalWrite(MOTOR_LEFT_FORWARD, LOW);
   digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
 
-  pixels.clear();
-  pixels.fill(pixels.Color(255, 0, 0)); 
-  pixels.show();
+//  pixels.clear();
+//  pixels.fill(pixels.Color(255, 0, 0)); // 
+//  pixels.show();
 }
 
 void turnLeft(int rotations) {
-  Serial.println("Turning left.");
   stopRobot();
   wait(150);
 
@@ -395,9 +372,9 @@ void turnLeft(int rotations) {
     analogWrite(MOTOR_RIGHT_BACKWARD, LOW);
     analogWrite(MOTOR_LEFT_BACKWARD, rightSpeed);
 
-    pixels.clear(); 
-    pixels.setPixelColor(3, pixels.Color(178, 172, 136)); 
-    pixels.show();
+//    pixels.clear(); 
+//    pixels.setPixelColor(3, pixels.Color(178, 172, 136)); // 
+//    pixels.show();
   }
 
   stopRobot();
@@ -414,7 +391,6 @@ void turnLeft(int rotations) {
 }
 
 void turnRight(int rotations) {
-  Serial.println("Turning right.");
   Serial.print("Right turn how many times");
   stopRobot();
   wait(150);
@@ -426,10 +402,10 @@ void turnRight(int rotations) {
     analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
     analogWrite(MOTOR_RIGHT_FORWARD, LOW);
     Serial.println("Rotations in turnRight: " + String(leftPulseCount));
-
-    pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(174, 198, 207)); 
-    pixels.show();
+//
+//    pixels.clear();
+//    pixels.setPixelColor(2, pixels.Color(174, 198, 207)); 
+//    pixels.show();
   }
 
   stopRobot();
@@ -446,7 +422,6 @@ void turnRight(int rotations) {
 }
 
 void resetRotations() {
-  Serial.println("Resetting rotations.");
   rightPulseCount = 0;
   leftPulseCount = 0;
 }
@@ -461,17 +436,14 @@ float pulse(int TRIG_PIN, int ECHO_PIN) {
 }
 
 float getDistanceSide() {
-  Serial.println("Getting distance from side.");
   return round(pulse(SIDE_TRIG_PIN, SIDE_ECHO_PIN) * 100.0) / 100.0;
 }
 
 float getDistanceForward() {
-  Serial.println("Getting distance forward.");
   return round(pulse(FRONT_TRIG_PIN, FRONT_ECHO_PIN) * 100.0) / 100.0;
 }
 
 void rightRotationsUpdate() {
-  Serial.println("Right rotations update.");
   noInterrupts();
   static unsigned long timer;
   static bool lastState;
@@ -480,6 +452,16 @@ void rightRotationsUpdate() {
     if (state != lastState) {
        rightPulseCount++;
        lastState = state;
+//       if(state){
+//       pixels.clear();
+//     pixels.setPixelColor(1, pixels.Color(0, 255, 0)); 
+//     pixels.show();
+//       }
+//       else {
+//        pixels.clear();
+//        pixels.setPixelColor(1, pixels.Color(0, 0, 255));
+//         pixels.show();
+//       }
     }
     timer = millis() + INTERRUPT_COUNTER_INTERVAL;
   } 
@@ -487,7 +469,6 @@ void rightRotationsUpdate() {
 }
 
 void leftRotationsUpdate() {  
-  Serial.println("Left rotations update."); 
   noInterrupts();
   static unsigned long timer;
   static bool lastState;
@@ -503,7 +484,6 @@ void leftRotationsUpdate() {
 }
 
 void swivelNeck(int angle) {
-  Serial.println("Swiveling neck.");
   for (int i = 0; i < 10; i++) {
     int pulseWidth = map(angle, -90, 90, 600, 2400); // Map the angle to pulse width
     digitalWrite(SERVO_NECK_PIN, HIGH);              // Set the pin high
@@ -514,7 +494,6 @@ void swivelNeck(int angle) {
 }
 
 void wait(int timeToWait) {
-  Serial.println("Waiting.");
   unsigned long startTime = millis(); // Get the current time
 
   // Loop until the desired time has passed
