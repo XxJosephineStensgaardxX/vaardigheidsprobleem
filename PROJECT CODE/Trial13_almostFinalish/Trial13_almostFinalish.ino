@@ -49,6 +49,11 @@ bool ending = false;
 bool gripperTriggered = false; // Flag to track if the gripper has been triggered
 
 void setup() {
+}
+
+void loop() {
+
+  //OUR VOID SETUP
 
   pixels.begin();  // Initialize NeoPixels
   pixels.show();   // Initialize all pixels to 'off'
@@ -93,7 +98,9 @@ void setup() {
 
 }
 
-void loop() {
+
+
+
 
   long distanceForward = getDistanceForward();
 
