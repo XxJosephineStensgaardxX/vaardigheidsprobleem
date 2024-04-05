@@ -85,6 +85,7 @@ void loop() {
   }
   
   if (startSequence) {
+    sideIsFreeEnabled = false;
     wait(2000);
     goForwardBasic(55);
     wait(250);
@@ -94,6 +95,7 @@ void loop() {
     wait(250);
     goForwardBasic(40);
     startSequence = false;
+     sideIsFreeEnabled = true;
     return wait(250);
   }
 
