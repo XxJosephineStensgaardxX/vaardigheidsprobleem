@@ -34,6 +34,8 @@ bool movingBackward = false;
 
 bool sideIsFreeEnabled = true; // Global flag to control sideIsFree function
 
+bool blackDetectedResult;
+
 // new additions
 const int sensorCount = 6; // Number of sensors in your analog line sensor
 const int sensorPins[sensorCount] = {A1, A2, A3, A4, A5, A6}; // Analog sensor pins (removed pins: A0 and A7)
@@ -51,6 +53,8 @@ void setup() {
   pixels.begin();  // Initialize NeoPixels
   pixels.show();   // Initialize all pixels to 'off'
   pixels.setBrightness(50);  // Set NeoPixel brightness
+
+  bool blackDetectedResult = blackDetected();
 
   pinMode(MOTOR_RIGHT_FORWARD, OUTPUT);
   pinMode(MOTOR_RIGHT_BACKWARD, OUTPUT);
@@ -75,7 +79,6 @@ void setup() {
     pixels.setPixelColor(1, pixels.Color(0, 0, 255));
     pixels.setPixelColor(0, pixels.Color(0, 0, 255));
     pixels.show();
-
   }
 
   for (int i = 0; i < 4; i++) {
@@ -84,6 +87,7 @@ void setup() {
   }
 
   Serial.println("inside setup, outside loop");
+  
   // Set the gripperTriggered flag to true after the gripper has been triggered once
   gripperTriggered = true;
 
@@ -95,15 +99,16 @@ void loop() {
 
   if (waitingStart) {
     sensingBothSides();
+    
     if (distanceForward < 25) {
       waitingStart = false;
       startSequence = true;
     }
+    
     return wait(100);
   }
 
   if (startSequence) {
-
     sideIsFreeEnabled = false;
     goForwardBasic(55);
     wait(250);
@@ -112,7 +117,6 @@ void loop() {
     turnLeft(13);
     goForwardBasic(60);
     startSequence = false;
-
     sideIsFreeEnabled = true;
     return wait(250);
   }
@@ -126,12 +130,10 @@ void loop() {
   if (blackDetected()) {
   performEnding();
   }
-
 }
 
 void performEnding() {
     Serial.println("ending");
-    
     stopRobot();
     gripOpen();
     wait(150);
@@ -156,6 +158,7 @@ void goForwardBasic(int ticks) {
 
 void goBackwardBasic(int ticks) {
   resetRotations();
+  
   while (rightPulseCount < ticks) {
     analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
     analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
@@ -208,6 +211,7 @@ void centerRobot() {
 }
 
 void moveForwardInRotations(int rotations) {
+  
   if (!movingForward) {
     resetRotations();
     movingForward = true;
@@ -215,6 +219,7 @@ void moveForwardInRotations(int rotations) {
 
   while (rightPulseCount < rotations && leftPulseCount < rotations) {
     long distance = getDistanceForward();
+    
     if (distance < 10) {
       stopRobot();
       determineTurn();
@@ -223,6 +228,7 @@ void moveForwardInRotations(int rotations) {
 
     ending = blackDetected();
     centerRobot();
+    
     if (sideIsFreeEnabled) {
       sideIsFree();
     }
@@ -235,11 +241,11 @@ void moveForwardInRotations(int rotations) {
 bool isStuck() {
 
   if (rightPulseCount == 0 && leftPulseCount == 0) {
+    
     return true;
-  }
-
-  else if (rightPulseCount == 0 || leftPulseCount == 0)
-  {
+    
+  } else if (rightPulseCount == 0 || leftPulseCount == 0){
+    
     return true;
   }
 
@@ -258,18 +264,19 @@ void sideIsFree() {
   Serial.print(rightSideDistance);
 
   if (rightSideDistance > 15 && sideIsFreeEnabled) { // If side distance is free
+    
     Serial.println("forward free");
     moveForwardInRotations(36);
     Serial.println("side is free function");
     turnRight(12);
     moveForwardInRotations(40);
-
   }
-
+  
   moveForwardInRotations(targetRotations);
 }
 
 void determineTurn() {
+  
   long distanceForward = getDistanceForward();
   long rightSideDistance = getDistanceSide();
 
@@ -277,7 +284,7 @@ void determineTurn() {
     Serial.println("side is free DT");
     turnRight(12.5);
     moveForwardInRotations(40);
-  } else if (distanceForward < 20) { // If obstacle detected in front
+  } else if (distanceForward < 20) { // If obstacle detected in front   
     swivelNeck(90);
     wait(500);
     long leftDistance = getDistanceForward();
@@ -295,18 +302,15 @@ void determineTurn() {
   }
 }
 
-boolean blackDetected()
-{
+boolean blackDetected() {
   short sum = 0;
 
-  Serial.println("black function");
-
+  Serial.println("blackDetected function");
   queryIRSensors();
-  for (int i = 0; i < 6; i++)
-  {
-    if (sensorValues[i])
-    {
-      Serial.println("black if fucntion");
+  
+  for (int i = 0; i < 6; i++){
+    
+    if (sensorValues[i]){
       sum++;
     };
   }
@@ -314,7 +318,7 @@ boolean blackDetected()
   Serial.print("Sum: ");
   Serial.println(sum);
 
-  return sum == 5; //4 coz it never really meets 6
+  return sum == 5; 
 }
 
 void gripOpen() {
@@ -383,7 +387,7 @@ void turnLeft(int rotations) {
 }
 
 void turnRight(int rotations) {
-  Serial.print("Right turn how many times");
+  Serial.print("Right");
   stopRobot();
   wait(150);
 
@@ -445,8 +449,10 @@ void rightRotationsUpdate() {
       rightPulseCount++;
       lastState = state;
     }
+    
     timer = millis() + INTERRUPT_COUNTER_INTERVAL;
   }
+  
   interrupts();
 }
 
@@ -460,8 +466,10 @@ void leftRotationsUpdate() {
       leftPulseCount++;
       lastState = state;
     }
+    
     timer = millis() + INTERRUPT_COUNTER_INTERVAL;
   }
+  
   interrupts();
 }
 
@@ -470,8 +478,9 @@ void swivelNeck(int angle) {
     int pulseWidth = map(angle, -90, 90, 600, 2400); // Map the angle to pulse width
     digitalWrite(SERVO_NECK_PIN, HIGH);              // Set the pin high
     delayMicroseconds(pulseWidth);                   // Delay for the calculated pulse width
-    digitalWrite(SERVO_NECK_PIN, LOW);               // Set the pin low
-    wait(20);                                        // Add a small delay to ensure the servo has enough time to respond
+    digitalWrite(SERVO_NECK_PIN, LOW); // Set the pin low
+    
+    wait(20);// Add a small delay to ensure the servo has enough time to respond
   }
 }
 
