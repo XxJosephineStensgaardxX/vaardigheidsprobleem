@@ -123,13 +123,15 @@ void loop() {
     moveForwardInRotations(targetRotations);
   }
 
-  ending = blackDetected();
-  Serial.print("Ending: ");
-  Serial.println(ending);
+  if (blackDetected()) {
+  performEnding();
+  }
 
-  // end sequence
-  if (ending) {
-    Serial.println("black Loop");
+}
+
+void performEnding() {
+    Serial.println("ending");
+    
     stopRobot();
     gripOpen();
     wait(150);
@@ -138,8 +140,6 @@ void loop() {
     gripClose();
     sideIsFreeEnabled = false; // Turn off sideIsFree functionality
     while (true);
-  }
-
 }
 
 void goForwardBasic(int ticks) {

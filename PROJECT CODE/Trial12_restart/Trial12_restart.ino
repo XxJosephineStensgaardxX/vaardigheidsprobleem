@@ -1,5 +1,3 @@
-#include <Adafruit_NeoPixel.h>
-
 #define SERVO_NECK_PIN 8
 #define GRIPPER_PIN 9
 #define FRONT_TRIG_PIN 12
@@ -15,10 +13,6 @@
 #define MOTOR_LEFT_FORWARD 6
 #define MOTOR_LEFT_BACKWARD 11
 
-#define PIN 7         // Digital pin Neopixels (Pin: IO)
-#define NUM_PIXELS 4  // Number of Neopixels
-Adafruit_NeoPixel pixels(NUM_PIXELS, PIN, NEO_RGB );
-
 #define INTERRUPT_COUNTER_INTERVAL  15    // interval in ms for the interruptroutine to be executed
 
 const int rightSpeed = 230;
@@ -32,9 +26,10 @@ int targetRotations = 20;
 bool movingForward = false;
 bool movingBackward = false;
 
-bool sideIsFreeEnabled = true; // Global flag to control sideIsFree function
+bool sideIsFreeEnabled = true;
 
-// new additions
+bool blackDetectedResult;
+
 const int sensorCount = 6; // Number of sensors in your analog line sensor
 const int sensorPins[sensorCount] = {A1, A2, A3, A4, A5, A6}; // Analog sensor pins (removed pins: A0 and A7)
 
@@ -44,14 +39,12 @@ bool waitingStart = true;
 bool startSequence = false;
 bool ending = false;
 
-bool gripperTriggered = false; // Flag to track if the gripper has been triggered
+bool gripperTriggered = false;
 
 void setup() {
 
-  pixels.begin();  // Initialize NeoPixels
-  pixels.show();   // Initialize all pixels to 'off'
-  pixels.setBrightness(50);  // Set NeoPixel brightness
-
+  bool blackDetectedResult = blackDetected();
+  
   pinMode(MOTOR_RIGHT_FORWARD, OUTPUT);
   pinMode(MOTOR_RIGHT_BACKWARD, OUTPUT);
   pinMode(MOTOR_LEFT_FORWARD, OUTPUT);
@@ -68,29 +61,19 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(MOTOR_RIGHT_ROTATION_SENSOR), rightRotationsUpdate, CHANGE);
   attachInterrupt(digitalPinToInterrupt(MOTOR_LEFT_ROTATION_SENSOR), leftRotationsUpdate, CHANGE);
 
-  Serial.println(millis());
-  if (millis() < 1000) {
-
-    pixels.clear();
-    pixels.setPixelColor(1, pixels.Color(0, 0, 255));
-    pixels.setPixelColor(0, pixels.Color(0, 0, 255));
-    pixels.show();
-
-  }
-
   for (int i = 0; i < 4; i++) {
     Serial.println("inside setup, gripper loop");
     gripOpen();
   }
 
   Serial.println("inside setup, outside loop");
+  
   // Set the gripperTriggered flag to true after the gripper has been triggered once
   gripperTriggered = true;
-
 }
 
 void loop() {
-
+  
   long distanceForward = getDistanceForward();
 
   if (waitingStart) {
@@ -101,10 +84,13 @@ void loop() {
     }
     return wait(100);
   }
-
+  
   if (startSequence) {
 
-    sideIsFreeEnabled = false;
+    sideIsFreeEnabled = false; 
+    blackDetectedResult = false;
+    Serial.println(blackDetectedResult);
+    
     goForwardBasic(55);
     wait(250);
     gripClose();
@@ -114,6 +100,7 @@ void loop() {
     startSequence = false;
 
     sideIsFreeEnabled = true;
+    blackDetectedResult = true;
     return wait(250);
   }
 
@@ -121,15 +108,18 @@ void loop() {
     recoverFromStuck();
   } else {
     moveForwardInRotations(targetRotations);
+    
   }
 
-  ending = blackDetected();
-  Serial.print("Ending: ");
-  Serial.println(ending);
+//   end sequences
+  if (blackDetected()) {
+  performEnding();
+  }
+}
 
-  // end sequence
-  if (ending) {
-    Serial.println("black Loop");
+void performEnding() {
+    Serial.println("ending");
+    
     stopRobot();
     gripOpen();
     wait(150);
@@ -138,8 +128,6 @@ void loop() {
     gripClose();
     sideIsFreeEnabled = false; // Turn off sideIsFree functionality
     while (true);
-  }
-
 }
 
 void goForwardBasic(int ticks) {
@@ -149,7 +137,7 @@ void goForwardBasic(int ticks) {
     analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
     analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
   }
-
+  
   stopRobot();
   gripClose();
 }
@@ -159,51 +147,33 @@ void goBackwardBasic(int ticks) {
   while (rightPulseCount < ticks) {
     analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
     analogWrite(MOTOR_LEFT_BACKWARD, leftSpeed);
-
-    pixels.clear();
-    pixels.setPixelColor(1, pixels.Color(0, 255, 0)); //
-    pixels.setPixelColor(0, pixels.Color(0, 255, 0)); //
-    pixels.show();
   }
 
   stopRobot();
 }
+
+
 
 void centerRobot() {
   long sideDistance = getDistanceSide();
 
   if (sideDistance > 9.2) { // Far from the side obstacle
     analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
-    analogWrite(MOTOR_LEFT_FORWARD, 245);
+    analogWrite(MOTOR_LEFT_FORWARD, 240);
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
-
-    pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(255, 209, 220)); //
-    pixels.setPixelColor(3, pixels.Color(255, 209, 220)); //
-    pixels.show();
 
   } else if (sideDistance < 7.4) { // Close to the side obstacle
     analogWrite(MOTOR_RIGHT_FORWARD, 255);
     analogWrite(MOTOR_LEFT_FORWARD, 215);
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
-
-    pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(255, 209, 220)); //
-    pixels.setPixelColor(3, pixels.Color(255, 209, 220));
-    pixels.show();
-
+    
   } else {
     analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
     analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
     analogWrite(MOTOR_LEFT_BACKWARD, 0);
     analogWrite(MOTOR_RIGHT_BACKWARD, 0);
-
-    pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(255, 209, 220)); //
-    pixels.setPixelColor(3, pixels.Color(255, 209, 220));
-    pixels.show();
   }
 }
 
@@ -213,15 +183,14 @@ void moveForwardInRotations(int rotations) {
     movingForward = true;
   }
 
-  while (rightPulseCount < rotations && leftPulseCount < rotations) {
+  while (rightPulseCount < rotations && leftPulseCount < rotations) { 
     long distance = getDistanceForward();
     if (distance < 10) {
       stopRobot();
       determineTurn();
       return;
     }
-
-    ending = blackDetected();
+    
     centerRobot();
     if (sideIsFreeEnabled) {
       sideIsFree();
@@ -238,18 +207,18 @@ bool isStuck() {
     return true;
   }
 
-  else if (rightPulseCount == 0 || leftPulseCount == 0)
+  else if(rightPulseCount == 0 || leftPulseCount == 0)
   {
     return true;
   }
-
+  
   return false;
 }
 
 void recoverFromStuck() {
-
+  
   goBackwardBasic(60);
-
+ 
 }
 
 void sideIsFree() {
@@ -295,13 +264,13 @@ void determineTurn() {
   }
 }
 
-boolean blackDetected()
-{
+boolean blackDetected(){
   short sum = 0;
 
   Serial.println("black function");
-
+  
   queryIRSensors();
+  
   for (int i = 0; i < 6; i++)
   {
     if (sensorValues[i])
@@ -320,7 +289,7 @@ boolean blackDetected()
 void gripOpen() {
   digitalWrite(GRIPPER_PIN, HIGH);
   delayMicroseconds(2000);
-  digitalWrite(GRIPPER_PIN, LOW);
+  digitalWrite(GRIPPER_PIN, LOW); 
   delay(10);
 }
 
@@ -333,7 +302,7 @@ void gripClose() {
 
 void queryIRSensors() {
   for (int i = 0; i < 6; i++) {
-    sensorValues[i] = analogRead(sensorPins[i]) > 800;
+     sensorValues[i] = analogRead(sensorPins[i]) > 800;
   }
 }
 
@@ -347,10 +316,6 @@ void stopRobot() {
   digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
   digitalWrite(MOTOR_LEFT_FORWARD, LOW);
   digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
-
-  pixels.clear();
-  pixels.fill(pixels.Color(255, 0, 0)); //
-  pixels.show();
 }
 
 void turnLeft(int rotations) {
@@ -363,10 +328,6 @@ void turnLeft(int rotations) {
     analogWrite(MOTOR_RIGHT_FORWARD, leftSpeed);
     analogWrite(MOTOR_RIGHT_BACKWARD, LOW);
     analogWrite(MOTOR_LEFT_BACKWARD, rightSpeed);
-
-    pixels.clear();
-    pixels.setPixelColor(3, pixels.Color(178, 172, 136)); //
-    pixels.show();
   }
 
   stopRobot();
@@ -394,10 +355,6 @@ void turnRight(int rotations) {
     analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
     analogWrite(MOTOR_RIGHT_FORWARD, LOW);
     Serial.println("Rotations in turnRight: " + String(leftPulseCount));
-
-    pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(174, 198, 207));
-    pixels.show();
   }
 
   stopRobot();
@@ -412,7 +369,6 @@ void turnRight(int rotations) {
 
   wait(1000);
 }
-
 void resetRotations() {
   rightPulseCount = 0;
   leftPulseCount = 0;
@@ -442,27 +398,27 @@ void rightRotationsUpdate() {
   if (millis() > timer) {
     bool state = digitalRead(MOTOR_RIGHT_ROTATION_SENSOR);
     if (state != lastState) {
-      rightPulseCount++;
-      lastState = state;
+       rightPulseCount++;
+       lastState = state;
     }
     timer = millis() + INTERRUPT_COUNTER_INTERVAL;
-  }
-  interrupts();
+  } 
+  interrupts(); 
 }
 
-void leftRotationsUpdate() {
+void leftRotationsUpdate() {  
   noInterrupts();
   static unsigned long timer;
   static bool lastState;
   if (millis() > timer) {
     bool state = digitalRead(MOTOR_LEFT_ROTATION_SENSOR);
     if (state != lastState) {
-      leftPulseCount++;
-      lastState = state;
+       leftPulseCount++;
+       lastState = state;
     }
     timer = millis() + INTERRUPT_COUNTER_INTERVAL;
-  }
-  interrupts();
+  } 
+  interrupts(); 
 }
 
 void swivelNeck(int angle) {
