@@ -36,7 +36,8 @@ bool sideIsFreeEnabled = true; // Global flag to control sideIsFree function
 
 bool blackDetectedResult;
 
-// new additions
+unsigned long lastMovementTime = 0;
+
 const int sensorCount = 6; // Number of sensors in your analog line sensor
 const int sensorPins[sensorCount] = {A1, A2, A3, A4, A5, A6}; // Analog sensor pins (removed pins: A0 and A7)
 
@@ -55,9 +56,9 @@ void loop() {
 
   //OUR VOID SETUP
 
-  pixels.begin();  // Initialize NeoPixels
-  pixels.show();   // Initialize all pixels to 'off'
-  pixels.setBrightness(50);  // Set NeoPixel brightness
+  pixels.begin();                      // Initialize NeoPixels
+  pixels.show();                       // Initialize all pixels to 'off'
+  pixels.setBrightness(50);            // Set NeoPixel brightness
 
   bool blackDetectedResult = blackDetected();
 
@@ -138,6 +139,9 @@ void loop() {
   performEnding();
   }
 }
+
+
+// functions
 
 void performEnding() {
     Serial.println("ending");
@@ -247,12 +251,9 @@ void moveForwardInRotations(int rotations) {
 
 bool isStuck() {
 
-  if (rightPulseCount == 0 && leftPulseCount == 0) {
-    
-    return true;
-    
-  } else if (rightPulseCount == 0 || leftPulseCount == 0){
-    
+  if (rightPulseCount == 0 && leftPulseCount == 0) {  
+    return true;  
+  } else if (rightPulseCount == 0 || leftPulseCount == 0){  
     return true;
   }
 
@@ -260,18 +261,14 @@ bool isStuck() {
 }
 
 void recoverFromStuck() {
-
   goBackwardBasic(60);
-
 }
 
 void sideIsFree() {
-
   long rightSideDistance = getDistanceSide();
   Serial.print(rightSideDistance);
 
   if (rightSideDistance > 15 && sideIsFreeEnabled) { // If side distance is free
-    
     Serial.println("forward free");
     moveForwardInRotations(36);
     Serial.println("side is free function");
@@ -283,7 +280,6 @@ void sideIsFree() {
 }
 
 void determineTurn() {
-  
   long distanceForward = getDistanceForward();
   long rightSideDistance = getDistanceSide();
 
@@ -315,8 +311,7 @@ boolean blackDetected() {
   Serial.println("blackDetected function");
   queryIRSensors();
   
-  for (int i = 0; i < 6; i++){
-    
+  for (int i = 0; i < 6; i++){    
     if (sensorValues[i]){
       sum++;
     };
@@ -383,8 +378,7 @@ void turnLeft(int rotations) {
   stopRobot();
   wait(150);
 
-  // Continue moving forward if obstacle is cleared
-  long distance = getDistanceForward();
+  long distance = getDistanceForward();  // Continue moving forward if obstacle is cleared
   if (distance > 15) {
     wait(100);
     moveForwardInRotations(5);
@@ -404,7 +398,6 @@ void turnRight(int rotations) {
     analogWrite(MOTOR_LEFT_BACKWARD, LOW);
     analogWrite(MOTOR_RIGHT_BACKWARD, rightSpeed);
     analogWrite(MOTOR_RIGHT_FORWARD, LOW);
-    Serial.println("Rotations in turnRight: " + String(leftPulseCount));
 
     pixels.clear();
     pixels.setPixelColor(2, pixels.Color(174, 198, 207));
@@ -414,8 +407,7 @@ void turnRight(int rotations) {
   stopRobot();
   wait(150);
 
-  // Continue moving forward if obstacle is cleared
-  long distance = getDistanceForward();
+  long distance = getDistanceForward();   // Continue moving forward if obstacle is cleared
   if (distance > 15) {
     wait(100);
     moveForwardInRotations(5);
@@ -450,8 +442,10 @@ void rightRotationsUpdate() {
   noInterrupts();
   static unsigned long timer;
   static bool lastState;
+  
   if (millis() > timer) {
     bool state = digitalRead(MOTOR_RIGHT_ROTATION_SENSOR);
+    
     if (state != lastState) {
       rightPulseCount++;
       lastState = state;
@@ -467,8 +461,10 @@ void leftRotationsUpdate() {
   noInterrupts();
   static unsigned long timer;
   static bool lastState;
+  
   if (millis() > timer) {
     bool state = digitalRead(MOTOR_LEFT_ROTATION_SENSOR);
+    
     if (state != lastState) {
       leftPulseCount++;
       lastState = state;
